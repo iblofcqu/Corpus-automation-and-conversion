@@ -1,0 +1,1250 @@
+{
+  "ontology_metadata": {
+    "version": "v2.0",
+    "name": "Qiuzijin2025-12-29"
+  },
+  "ontology_structure": {
+    "1.报告名称": {
+      "priority": 0,
+      "description": "事故调查报告的正式名称，包含省市、日期、事故等级和类型等关键信息",
+      "keywords": [
+        "1.报告名称"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "1.报告名称": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "事故报告的完整名称，格式为：X省X市'X.X'（等级）（类型）事故报告",
+          "include_reference": true
+        }
+      }
+    },
+    "2.项目位置": {
+      "priority": 1,
+      "description": "事故发生地的地理位置信息，包括省市区县及具体街道地址",
+      "keywords": [
+        "2.项目位置"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "2.项目位置": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "项目所在的行政区划，格式为：X省X市X区（县）",
+          "include_reference": true
+        },
+        "2.1项目具体位置": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "项目的详细地址，包括街道、路名、门牌号等",
+          "include_reference": true
+        }
+      }
+    },
+    "3.时间天气情况": {
+      "priority": 2,
+      "description": "事故发生的时间信息和当时的天气状况，包括事故发生时间、上报时间及天气条件",
+      "keywords": [
+        "3.时间天气情况"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "3.时间天气情况": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "事故发生的具体时间，格式为：X年X月X日X时X分",
+          "include_reference": true
+        },
+        "3.1具体时间（X年X月X日X时X分）": {
+          "type": "object",
+          "extraction_strategy": "structured_extract",
+          "description": "事故相关的时间信息，包括事故发生时间和上报时间",
+          "include_reference": true,
+          "subfields": {
+            "3.1.1事故发生时间（X年X月X日X时X分）": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "事故实际发生的具体时间",
+              "include_reference": true
+            },
+            "3.1.2上报时间（X年X月X日X时X分）": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "事故上报至相关部门的时间",
+              "include_reference": true
+            }
+          }
+        },
+        "3.2当天天气情况": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "事故发生时的天气状况，包括晴阴、温度、风力及极端天气等",
+          "include_reference": true
+        }
+      }
+    },
+    "4.项目名称": {
+      "priority": 3,
+      "description": "发生事故的工程项目名称及其建设规模信息",
+      "keywords": [
+        "4.项目名称"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "4.1项目名称": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "工程项目的完整名称",
+          "include_reference": true
+        },
+        "4.2项目规模": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "工程项目的建设规模，如建筑面积、层数、造价等",
+          "include_reference": true
+        }
+      }
+    },
+    "5.工程类别": {
+      "priority": 4,
+      "description": "LLM分析项目所属工程类别并概述；子类标记所属类别",
+      "keywords": [
+        "5.工程类别"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "5.工程类别": {
+          "type": "string",
+          "extraction_strategy": "cross_chunk_summarize",
+          "description": "总结项目归属的工程类别，并说明哪个子类为'是'",
+          "include_reference": true
+        },
+        "5.1房屋建筑": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否属于房屋建筑工程",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "5.2市政与基础设施": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否属于市政与基础设施工程",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        }
+      }
+    },
+    "6.施工阶段": {
+      "priority": 5,
+      "description": "LLM分析事故发生时的施工阶段并概述；子类标记所在阶段",
+      "keywords": [
+        "6.施工阶段"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "6.施工阶段": {
+          "type": "string",
+          "extraction_strategy": "cross_chunk_summarize",
+          "description": "概述事故发生时所处施工阶段，并标明哪个子阶段为'是'",
+          "include_reference": true
+        },
+        "6.1进场施工初期": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否处于进场施工初期阶段",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "6.2地基与基础工程": {
+          "type": "object",
+          "extraction_strategy": "structured_extract",
+          "description": "地基与基础工程阶段的细分情况",
+          "include_reference": true,
+          "subfields": {
+            "6.2.1土方开挖": {
+              "type": "string",
+              "extraction_strategy": "classify_with_options",
+              "description": "判断是否处于土方开挖阶段",
+              "include_reference": true,
+              "options": [
+                "否",
+                "是"
+              ]
+            },
+            "6.2.2基坑支护": {
+              "type": "string",
+              "extraction_strategy": "classify_with_options",
+              "description": "判断是否处于基坑支护阶段",
+              "include_reference": true,
+              "options": [
+                "否",
+                "是"
+              ]
+            },
+            "6.2.3桩基施工": {
+              "type": "string",
+              "extraction_strategy": "classify_with_options",
+              "description": "判断是否处于桩基施工阶段",
+              "include_reference": true,
+              "options": [
+                "否",
+                "是"
+              ]
+            }
+          }
+        },
+        "6.3主体结构施工": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否处于主体结构施工阶段",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "6.4装饰装修施工（改造）": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否处于装饰装修或改造施工阶段",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "6.5竣工验收": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否处于竣工验收阶段",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        }
+      }
+    }
+    ,
+    "7.建设单位": {
+      "priority": 6,
+      "description": "工程项目的建设单位信息，包括单位名称、资质、合规性及相关证照情况",
+      "keywords": [
+        "7.建设单位"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "7.建设单位": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "建设单位的简称或概述",
+          "include_reference": true
+        },
+        "7.1建设单位名称": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "建设单位的完整名称",
+          "include_reference": true
+        },
+        "7.2建设单位类别（法人、自然人）": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "建设单位的主体类型，是法人单位还是自然人",
+          "include_reference": true
+        },
+        "7.3有无违法分包（自然人、资质不满足要求等）": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "是否存在违法分包行为，如分包给自然人或资质不符要求的单位",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "7.4安全投入情况（正常、不足）": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "安全生产费用投入是否充足",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "7.5是否压缩工期": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "是否存在不合理压缩工期的情况",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "7.6工程项目相关证照": {
+          "type": "object",
+          "extraction_strategy": "structured_extract",
+          "description": "工程项目的各类许可证照办理情况",
+          "include_reference": true,
+          "subfields": {
+            "7.6.1用地许可证": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "建设用地规划许可证的办理情况",
+              "include_reference": true
+            },
+            "7.6.2工规证": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "建设工程规划许可证的办理情况",
+              "include_reference": true
+            }
+          }
+        },
+        "7.7是否有地下管线移交单": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "是否办理地下管线移交手续",
+          "include_reference": true
+        }
+      }
+    },
+    "8.总承包单位": {
+      "priority": 7,
+      "description": "工程项目的总承包单位信息，包括资质、安全管理、人员配备及合规性情况",
+      "keywords": [
+        "8.总承包单位"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "8.总承包单位": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "总承包单位的简称或概述",
+          "include_reference": true
+        },
+        "8.1总承包单位名称": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "总承包单位的完整名称",
+          "include_reference": true
+        },
+        "8.2有无转包挂靠情况": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "是否存在工程转包或挂靠行为",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "8.3有无超资质承揽情况": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "是否存在超越资质等级承揽工程的情况",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "8.4安全管理机构设置及人员配备": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "安全管理机构的设置情况和安全管理人员的配备情况",
+          "include_reference": true
+        },
+        "8.5安全管理制度建立情况": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "各项安全管理制度的建立和执行情况",
+          "include_reference": true
+        },
+        "8.6安全教育培训": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "安全教育培训的开展情况",
+          "include_reference": true
+        },
+        "8.7安全检查情况": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "日常安全检查的执行情况",
+          "include_reference": true
+        },
+        "8.8资质证书（企业资质、安许证）": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "企业资质证书和安全生产许可证的办理情况",
+          "include_reference": true
+        },
+        "8.9施工许可证（项目）": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "项目施工许可证的办理情况",
+          "include_reference": true
+        },
+        "8.10项目关键人员是否人证一致": {
+          "type": "object",
+          "extraction_strategy": "structured_extract",
+          "description": "项目关键岗位人员的人证一致性情况",
+          "include_reference": true,
+          "subfields": {
+            "8.10.1项目负责人": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "项目负责人是否人证一致",
+              "include_reference": true
+            },
+            "8.10.3项目专职安全管理人员": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "专职安全管理人员是否人证一致",
+              "include_reference": true
+            }
+          }
+        }
+      }
+    },
+    "9.监理单位": {
+      "priority": 8,
+      "description": "工程项目的监理单位信息，包括资质、人员配备及监理履职情况",
+      "keywords": [
+        "9.监理单位"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "9.监理单位": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "监理单位的简称或概述",
+          "include_reference": true
+        },
+        "9.1监理单位名称": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "监理单位的完整名称",
+          "include_reference": true
+        },
+        "9.2资质证书（企业资质）": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "监理单位的资质证书情况",
+          "include_reference": true
+        },
+        "9.3监理人员配备": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "监理人员的配备是否满足要求",
+          "include_reference": true
+        },
+        "9.4项目关键人员人证一致": {
+          "type": "object",
+          "extraction_strategy": "structured_extract",
+          "description": "监理项目关键人员的人证一致性情况",
+          "include_reference": true,
+          "subfields": {
+            "9.4.1项目总监或代表": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "项目总监理工程师或总监代表是否人证一致",
+              "include_reference": true
+            },
+            "9.4.2安全监理工程师": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "安全监理工程师是否人证一致",
+              "include_reference": true
+            }
+          }
+        }
+      }
+    },
+    "10.专业分包单位": {
+      "priority": 9,
+      "description": "工程项目的专业分包单位信息，包括资质、安全管理、特种作业人员等情况",
+      "keywords": [
+        "10.专业分包单位"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "10.专业分包单位": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "专业分包单位的简称或概述",
+          "include_reference": true
+        },
+        "10.1专业分包单位名称": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "专业分包单位的完整名称",
+          "include_reference": true
+        },
+        "10.2是否存在转包情况": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "专业分包单位是否存在再次转包的情况",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "10.3有无超资质承接情况": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "是否存在超越资质等级承接工程的情况",
+          "include_reference": true
+        },
+        "10.4安全管理机构设置及人员配备": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "安全管理机构的设置和人员配备情况",
+          "include_reference": true
+        },
+        "10.5安全管理制度建立情况": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "各项安全管理制度的建立情况",
+          "include_reference": true
+        },
+        "10.6安全教育培训": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "安全教育培训的开展情况",
+          "include_reference": true
+        },
+        "10.7安全检查情况": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "日常安全检查的执行情况",
+          "include_reference": true
+        },
+        "10.8资质证书（企业资质、安许证）": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "企业资质证书和安全生产许可证情况",
+          "include_reference": true
+        },
+        "10.9项目关键人员人证一致": {
+          "type": "object",
+          "extraction_strategy": "structured_extract",
+          "description": "项目关键岗位人员的人证一致性情况",
+          "include_reference": true,
+          "subfields": {
+            "10.9.1项目负责人": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "项目负责人是否人证一致",
+              "include_reference": true
+            },
+            "10.9.2项目专职安全管理人员": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "专职安全管理人员是否人证一致",
+              "include_reference": true
+            }
+          }
+        },
+        "10.10特种作业人员": {
+          "type": "object",
+          "extraction_strategy": "structured_extract",
+          "description": "特种作业人员的持证和管理情况",
+          "include_reference": true,
+          "subfields": {
+            "10.10.1数量": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "特种作业人员的数量",
+              "include_reference": true
+            },
+            "10.10.2是否取证": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "特种作业人员是否持有有效证件",
+              "include_reference": true
+            },
+            "10.10.3证件有效期": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "特种作业证件是否在有效期内",
+              "include_reference": true
+            },
+            "10.10.4人证是否相符": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "特种作业人员与证件是否相符",
+              "include_reference": true
+            }
+          }
+        }
+      }
+    },
+    "11.劳务分包单位": {
+      "priority": 10,
+      "description": "工程项目的劳务分包单位信息，包括资质、安全管理、作业人员管理等情况",
+      "keywords": [
+        "11.劳务分包单位"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "11.劳务分包单位": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "劳务分包单位的简称或概述",
+          "include_reference": true
+        },
+        "11.1劳务分包单位": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "劳务分包单位的完整名称",
+          "include_reference": true
+        },
+        "11.2是否存在转包情况": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "劳务分包单位是否存在再次转包的情况",
+          "include_reference": true
+        },
+        "11.4安全管理机构设置及人员配备": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "安全管理机构的设置和人员配备情况",
+          "include_reference": true
+        },
+        "11.5安全管理制度建立情况": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "各项安全管理制度的建立情况",
+          "include_reference": true
+        },
+        "11.6安全教育培训": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "安全教育培训的开展情况",
+          "include_reference": true
+        },
+        "11.7安全检查情况": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "日常安全检查的执行情况",
+          "include_reference": true
+        },
+        "11.8资质证书（企业资质）": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "企业资质证书的办理情况",
+          "include_reference": true
+        },
+        "11.9特种作业人员": {
+          "type": "object",
+          "extraction_strategy": "structured_extract",
+          "description": "特种作业人员的持证和管理情况",
+          "include_reference": true,
+          "subfields": {
+            "11.9.1数量": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "特种作业人员的数量",
+              "include_reference": true
+            },
+            "11.9.2是否取证": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "特种作业人员是否持有有效证件",
+              "include_reference": true
+            },
+            "11.9.3证件有效期": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "特种作业证件是否在有效期内",
+              "include_reference": true
+            },
+            "11.9.4人证是否相符": {
+              "type": "string",
+              "extraction_strategy": "copy_exact",
+              "description": "特种作业人员与证件是否相符",
+              "include_reference": true
+            }
+          }
+        }
+      }
+    },
+    "12.设备租赁（安拆）单位": {
+      "priority": 11,
+      "description": "工程项目的设备租赁和安装拆卸单位信息，包括资质、设备产权及使用情况",
+      "keywords": [
+        "12.设备租赁（安拆）单位"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "12.设备租赁（安拆）单位": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "设备租赁（安拆）单位的简称或概述",
+          "include_reference": true
+        },
+        "12.1设备租赁单位名称": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "设备租赁单位的完整名称",
+          "include_reference": true
+        },
+        "12.2设备安拆单位名称": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "设备安装拆卸单位的完整名称",
+          "include_reference": true
+        },
+        "12.3设备安拆单位资质情况": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "设备安拆单位的资质证书情况",
+          "include_reference": true
+        },
+        "12.4产权情况": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "设备的产权归属情况",
+          "include_reference": true
+        },
+        "12.5租赁情况": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "设备的租赁合同和手续情况",
+          "include_reference": true
+        },
+        "12.6安装情况": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "设备的安装验收情况",
+          "include_reference": true
+        },
+        "12.7使用情况": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "设备的日常使用和维护情况",
+          "include_reference": true
+        }
+      }
+    }
+    ,
+    "13.勘察单位": {
+      "priority": 12,
+      "description": "工程项目的地质勘察单位信息，包括单位名称和资质情况",
+      "keywords": [
+        "13.勘察单位"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "13.勘察单位": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "勘察单位的简称或概述",
+          "include_reference": true
+        },
+        "13.1勘察单位名称": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "勘察单位的完整名称",
+          "include_reference": true
+        },
+        "13.2资质证书（企业资质）": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "勘察单位的资质证书情况",
+          "include_reference": true
+        }
+      }
+    },
+    "14.设计单位": {
+      "priority": 13,
+      "description": "工程项目的设计单位信息，包括单位名称和资质情况",
+      "keywords": [
+        "14.设计单位"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "14.设计单位": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "设计单位的简称或概述",
+          "include_reference": true
+        },
+        "14.1设计单位名称": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "设计单位的完整名称",
+          "include_reference": true
+        },
+        "14.2资质证书（企业资质）": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "设计单位的资质证书情况",
+          "include_reference": true
+        }
+      }
+    },
+    "15.第三方服务机构": {
+      "priority": 14,
+      "description": "提供第三方技术服务的机构信息，包括检测、评估、咨询等服务单位",
+      "keywords": [
+        "15.第三方服务机构"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "15.第三方服务机构": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "第三方服务机构的简称或概述",
+          "include_reference": true
+        },
+        "15.1第三方服务机构名称": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "第三方服务机构的完整名称",
+          "include_reference": true
+        },
+        "15.2服务内容": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "第三方机构提供的具体服务内容",
+          "include_reference": true
+        },
+        "15.3资质情况": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "第三方服务机构的资质证书情况",
+          "include_reference": true
+        }
+      }
+    },
+    "16.事故类型": {
+      "priority": 15,
+      "description": "LLM分析事故所属类型并概述；子类标记具体事故类型",
+      "keywords": [
+        "16.事故类型"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "16.事故类型": {
+          "type": "string",
+          "extraction_strategy": "cross_chunk_summarize",
+          "description": "总结事故的主要类型，并标明哪个子类型为'是'",
+          "include_reference": true
+        },
+        "16.1坍塌事故": {
+          "type": "object",
+          "extraction_strategy": "structured_extract",
+          "description": "坍塌类事故的细分类型",
+          "include_reference": true,
+          "subfields": {
+            "16.1.1基坑坍塌": {
+              "type": "string",
+              "extraction_strategy": "classify_with_options",
+              "description": "判断是否为基坑坍塌事故",
+              "include_reference": true,
+              "options": [
+                "否",
+                "是"
+              ]
+            },
+            "16.1.2建筑物坍塌": {
+              "type": "string",
+              "extraction_strategy": "classify_with_options",
+              "description": "判断是否为建筑物坍塌事故",
+              "include_reference": true,
+              "options": [
+                "否",
+                "是"
+              ]
+            },
+            "16.1.3脚手架坍塌": {
+              "type": "string",
+              "extraction_strategy": "classify_with_options",
+              "description": "判断是否为脚手架坍塌事故",
+              "include_reference": true,
+              "options": [
+                "否",
+                "是"
+              ]
+            },
+            "16.1.4模板坍塌": {
+              "type": "string",
+              "extraction_strategy": "classify_with_options",
+              "description": "判断是否为模板坍塌事故",
+              "include_reference": true,
+              "options": [
+                "否",
+                "是"
+              ]
+            },
+            "16.1.5其他坍塌": {
+              "type": "string",
+              "extraction_strategy": "classify_with_options",
+              "description": "判断是否为其他类型坍塌事故",
+              "include_reference": true,
+              "options": [
+                "否",
+                "是"
+              ]
+            }
+          }
+        },
+        "16.2高处坠落": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否为高处坠落事故",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "16.3起重伤害": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否为起重设备相关伤害事故",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "16.4物体打击": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否为物体打击事故",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "16.5机械伤害": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否为机械设备造成的伤害事故",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "16.6触电": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否为触电事故",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "16.7火灾": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否为火灾事故",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "16.8中毒和窒息": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否为中毒和窒息事故",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "16.9其他伤害": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否为其他类型伤害事故",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        }
+      }
+    },
+    "17.事故等级": {
+      "priority": 16,
+      "description": "LLM根据伤亡情况判定事故等级并概述；子类标记具体等级",
+      "keywords": [
+        "17.事故等级"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "17.事故等级": {
+          "type": "string",
+          "extraction_strategy": "cross_chunk_summarize",
+          "description": "根据伤亡人数判定事故等级，并标明属于哪个等级",
+          "include_reference": true
+        },
+        "17.1特别重大事故": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否为特别重大事故（死亡30人以上）",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "17.2重大事故": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否为重大事故（死亡10-29人）",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "17.3较大事故": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否为较大事故（死亡3-9人）",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        },
+        "17.4一般事故": {
+          "type": "string",
+          "extraction_strategy": "classify_with_options",
+          "description": "判断是否为一般事故（死亡3人以下）",
+          "include_reference": true,
+          "options": [
+            "否",
+            "是"
+          ]
+        }
+      }
+    },
+    "18.伤亡情况": {
+      "priority": 17,
+      "description": "事故造成的人员伤亡和经济损失情况",
+      "keywords": [
+        "18.伤亡情况"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "18.伤亡情况": {
+          "type": "string",
+          "extraction_strategy": "cross_chunk_summarize",
+          "description": "事故伤亡情况的总体概述",
+          "include_reference": true
+        },
+        "18.1死亡人数": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "事故造成的死亡人数",
+          "include_reference": true
+        },
+        "18.2受伤人数": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "事故造成的受伤人数",
+          "include_reference": true
+        },
+        "18.3经济损失": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "事故造成的直接经济损失金额",
+          "include_reference": true
+        }
+      }
+    },
+    "19.事故经过": {
+      "priority": 18,
+      "description": "事故发生的详细经过，包括时间顺序、关键事件和人员行为",
+      "keywords": [
+        "19.事故经过"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "19.事故经过": {
+          "type": "string",
+          "extraction_strategy": "cross_chunk_summarize",
+          "description": "按时间顺序描述事故发生的完整过程",
+          "include_reference": true
+        }
+      }
+    },
+    "20.直接原因": {
+      "priority": 19,
+      "description": "导致事故发生的直接原因，包括不安全行为和不安全状态",
+      "keywords": [
+        "20.直接原因"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "20.直接原因": {
+          "type": "string",
+          "extraction_strategy": "cross_chunk_summarize",
+          "description": "导致事故发生的直接技术原因和现场不安全因素",
+          "include_reference": true
+        }
+      }
+    },
+    "21.间接原因": {
+      "priority": 20,
+      "description": "导致事故发生的间接原因，包括管理缺陷和制度问题",
+      "keywords": [
+        "21.间接原因"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "21.间接原因": {
+          "type": "string",
+          "extraction_strategy": "cross_chunk_summarize",
+          "description": "管理不当、制度缺失等导致事故的间接因素",
+          "include_reference": true
+        }
+      }
+    },
+    "23.处理建议": {
+      "priority": 22,
+      "description": "对事故责任单位和责任人的处理建议，包括行政处罚和刑事追责建议",
+      "keywords": [
+        "23.处理建议"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "23.处理建议": {
+          "type": "string",
+          "extraction_strategy": "cross_chunk_summarize",
+          "description": "对各责任单位和责任人的处理建议概述",
+          "include_reference": true
+        },
+        "23.1责任单位处理建议": {
+          "type": "string",
+          "extraction_strategy": "cross_chunk_summarize",
+          "description": "对责任单位的行政处罚建议，包括罚款、停业整顿、吊销资质等",
+          "include_reference": true
+        },
+        "23.2责任人处理建议": {
+          "type": "string",
+          "extraction_strategy": "cross_chunk_summarize",
+          "description": "对责任人的处理建议，包括行政处分、罚款、刑事追责等",
+          "include_reference": true
+        }
+      }
+    },
+    "24.整改措施": {
+      "priority": 23,
+      "description": "针对事故暴露问题提出的整改措施和建议",
+      "keywords": [
+        "24.整改措施"
+      ],
+      "max_tokens": 4000,
+      "fields": {
+        "24.整改措施": {
+          "type": "string",
+          "extraction_strategy": "cross_chunk_summarize",
+          "description": "为防止类似事故再次发生提出的具体整改措施和管理建议",
+          "include_reference": true
+        },
+        "24.1建设单位": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "针对建设单位的整改措施",
+          "include_reference": true
+        },
+        "24.2总承包单位": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "针对总承包单位的整改措施",
+          "include_reference": true
+        },
+        "24.3设计勘察单位": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "针对设计或勘察单位的整改措施",
+          "include_reference": true
+        },
+        "24.4专业分包单位": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "针对专业分包单位的整改措施",
+          "include_reference": true
+        },
+        "24.5劳务分包单位": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "针对劳务分包单位的整改措施",
+          "include_reference": true
+        },
+        "24.6其他单位": {
+          "type": "string",
+          "extraction_strategy": "copy_exact",
+          "description": "其他相关单位的整改措施",
+          "include_reference": true
+        }
+      }
+    }
+  },
+  "extraction_strategies": {
+    "copy_exact": {
+      "description": "精确复制原文中的字段值，不做任何改写",
+      "prompt_template": "从以下文本中找到「{field_name}」字段，直接复制原文内容，不要改写或总结：\n\n{content}\n\n只返回该字段的原文内容，如果找不到则返回空字符串。"
+    },
+    "classify_with_options": {
+      "description": "从预定义选项中分类选择",
+      "prompt_template": "从以下文本中识别「{field_name}」，并从预定义选项中选择最匹配的一项。\n\n文本内容：\n{content}\n\n只返回选中的选项，不要添加任何解释。"
+    },
+    "copy_section": {
+      "description": "复制整个章节的内容，保持原文完整性",
+      "prompt_template": "从以下文本中提取「{field_name}」相关的完整内容，要求：\n1. 直接复制原文，不要改写\n2. 保持段落结构\n3. 保持所有细节\n\n{content}\n\n返回完整的原文内容。"
+    },
+    "list_extract": {
+      "description": "提取列表项，逐条复制原文",
+      "prompt_template": "从以下文本中提取「{field_name}」的所有条目，要求：\n1. 逐条复制原文内容\n2. 不要改写或总结\n3. 保持原文的完整表述\n4. 以JSON数组格式返回\n\n{content}\n\n返回格式：[\"原文条目1\", \"原文条目2\", ...]"
+    },
+    "structured_extract": {
+      "description": "提取结构化对象，严格按照schema复制",
+      "prompt_template": "从以下文本中提取「{field_name}」的结构化信息，要求：\n1. 严格按照以下schema提取：\n{schema}\n\n2. 直接复制原文中的对应字段值\n3. 不要改写或推断\n4. 以JSON对象格式返回\n\n{content}\n\n返回格式：{{\"字段1\": \"原文值1\", \"字段2\": \"原文值2\", ...}}"
+    },
+    "structured_list_extract": {
+      "description": "提取结构化列表，每个item按照schema复制",
+      "prompt_template": "从以下文本中提取「{field_name}」的所有条目，要求：\n1. 每个条目按照以下schema提取：\n{schema}\n\n2. 直接复制原文中的字段值\n3. 不要改写或总结\n4. 以JSON数组格式返回\n\n{content}\n\n返回格式：[{{\"字段1\": \"原文值1\", ...}}, {{\"字段1\": \"原文值2\", ...}}, ...]"
+    },
+    "extract_format": {
+      "description": "提取并格式化特定类型数据（如日期）",
+      "prompt_template": "从以下文本中提取「{field_name}」并格式化为标准格式：\n\n{content}\n\n返回格式化后的值。"
+    },
+    "cross_chunk_summarize": {
+      "description": "跨多个chunk综合分析总结，返回一段连贯的文字而非列点",
+      "prompt_template": "根据以下多个相关章节的内容，综合分析总结「{field_name}」，要求：\n1. 综合分析所有相关描述\n2. 提取关键信息并总结\n3. 形成一段连贯的文字，不要列点\n4. 保持客观准确，不要臆测\n5. 如无相关信息则返回空字符串，千万不要返回字段名称或标签\n\n{content}\n\n返回一段总结文字或空字符串。"
+    },
+    "cross_chunk_list_extract": {
+      "description": "跨多个chunk综合提取列表，需要分析多个相关章节",
+      "prompt_template": "根据以下多个相关章节的内容，综合分析并提取「{field_name}」的所有条目，要求：\n1. 综合分析事故描述、原因分析等相关章节\n2. 归纳总结出所有相关条目\n3. 每个条目保持简洁准确\n4. 以JSON数组格式返回\n\n{content}\n\n返回格式：[\"条目1\", \"条目2\", ...]"
+    },
+    "cross_chunk_structured_list_extract": {
+      "description": "跨多个chunk综合提取结构化列表，需要分析多个相关章节",
+      "prompt_template": "根据以下多个相关章节的内容，综合提取「{field_name}」的所有条目，要求：\n1. 每个条目按照以下schema提取：\n{schema}\n\n2. 综合分析所有相关章节的信息\n3. 直接复制原文中的字段值\n4. 对于责任认定和处罚意见，要完整复制原文\n5. 以JSON数组格式返回\n\n{content}\n\n返回格式：[{{\"字段1\": \"原文值1\", ...}}, {{\"字段1\": \"原文值2\", ...}}, ...]"
+    }
+  }
+}
