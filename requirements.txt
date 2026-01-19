@@ -1,0 +1,12 @@
+﻿# Core LLM client
+openai>=1.0.0
+
+# MinerU PDF parsing
+loguru
+-e ./MinerU-master
+
+# Word to PDF (optional)
+docx2pdf
+python-docx
+reportlab
+pywin32; platform_system == "Windows"
