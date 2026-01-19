@@ -3,8 +3,7 @@ openai>=1.0.0
 
 # MinerU PDF parsing
 loguru
--e ./MinerU-master
-
+mineru[all]==2.7.1
 # Word to PDF (optional)
 docx2pdf
 python-docx
