@@ -1,0 +1,66 @@
+[project]
+name = "corpus-automation-and-conversion"
+version = "1.0.0"
+description = "事故调查报告智能处理系统 - PDF文档本体论提取平台"
+requires-python = ">=3.11"
+dependencies = []  # 使用 requirements.txt 管理依赖
+
+[tool.ruff]
+# 设置行长度为 88（Black 默认）
+line-length = 88
+# Python 3.11 目标版本
+target-version = "py311"
+
+# 选择规则集
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort (import 排序)
+    "N",   # pep8-naming
+    "UP",  # pyupgrade (现代 Python 语法)
+    "B",   # flake8-bugbear (常见错误)
+    "C4",  # flake8-comprehensions (列表推导式优化)
+    "DTZ", # flake8-datetimez (时区感知)
+    "T20", # flake8-print (禁止 print)
+    "RET", # flake8-return (return 语句优化)
+    "SIM", # flake8-simplify (代码简化)
+]
+
+# 忽略的规则
+ignore = [
+    "E501",   # 行长度由 formatter 处理
+    "T201",   # 允许 print（调试阶段）
+    "DTZ005", # 允许 datetime.now() 不带时区
+    "B008",   # 允许函数调用作为默认参数（Django常用）
+]
+
+# 排除目录
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "migrations",  # Django 迁移文件不检查
+    "data",
+    "output",
+    "Mineru_changed",
+    "input_file_mix",
+    "input_file_pdf",
+    "ontology_output_v2",
+]
+
+[tool.ruff.format]
+# 使用双引号
+quote-style = "double"
+# 缩进 4 空格
+indent-style = "space"
+
+[tool.ruff.isort]
+# isort 配置
+known-first-party = ["backend", "text_extraction"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.ruff.per-file-ignores]
+# Django 迁移文件和测试文件特殊规则
+"*/migrations/*.py" = ["E501", "N806", "N815"]
+"*/tests/*.py" = ["S101", "S105", "S106"]
