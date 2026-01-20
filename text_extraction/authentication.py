@@ -2,9 +2,12 @@
 自定义认证模块 - 从HTTP Header读取用户ID
 """
 
+import logging
 from django.contrib.auth.models import User
 from rest_framework import authentication
 from rest_framework.exceptions import AuthenticationFailed
+
+logger = logging.getLogger(__name__)
 
 
 class HeaderAuthentication(authentication.BaseAuthentication):
@@ -27,6 +30,6 @@ class HeaderAuthentication(authentication.BaseAuthentication):
 
         if created:
             # 新用户记录日志
-            print(f"自动创建用户: {user_id}")
+            logger.info("自动创建用户: %s", user_id)
 
         return (user, None)
