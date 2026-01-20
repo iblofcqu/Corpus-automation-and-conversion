@@ -104,11 +104,12 @@ class FileUploadView(APIView):
             status=File.Status.PENDING,
         )
 
-        # TODO: 触发Celery任务
-        # from .tasks import process_pdf_task
-        # task = process_pdf_task.delay(file_obj.id)
-        # file_obj.task_id = task.id
-        # file_obj.save()
+        # 触发Celery任务
+        from .tasks import process_pdf_task
+
+        task = process_pdf_task.delay(file_obj.id)
+        file_obj.task_id = task.id
+        file_obj.save(update_fields=["task_id"])
 
         return Response(
             FileDetailSerializer(file_obj).data, status=status.HTTP_201_CREATED
