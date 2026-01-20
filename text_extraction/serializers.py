@@ -123,9 +123,9 @@ class FileUploadSerializer(serializers.Serializer):
     def validate_project_id(self, value):
         """验证项目是否存在且未删除"""
         try:
-            project = Project.objects.get(id=value, is_deleted=False)
-        except Project.DoesNotExist:
-            raise serializers.ValidationError("项目不存在或已删除")
+            Project.objects.get(id=value, is_deleted=False)
+        except Project.DoesNotExist as exc:
+            raise serializers.ValidationError("项目不存在或已删除") from exc
         return value
 
     def validate_file(self, value):
