@@ -62,22 +62,26 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
 
         # 设置创建者
         validated_data["created_by"] = user
+        # 生成文件路径
+        filename = f"ontology_{user.username}_{validated_data['name']}.json"
+        file_path = os.path.join("ontology", filename)
+        full_path = os.path.join(settings.MEDIA_ROOT, file_path)
 
+        # 保存文件
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        validated_data["ontology_path"] = file_path
         # 如果上传了自定义本体论文件
         if ontology_file:
-            # 生成文件路径
-            filename = f"ontology_{user.username}_{validated_data['name']}.json"
-            file_path = os.path.join("ontology", filename)
-            full_path = os.path.join(settings.MEDIA_ROOT, file_path)
-
-            # 保存文件
-            os.makedirs(os.path.dirname(full_path), exist_ok=True)
             with open(full_path, "wb") as f:
                 for chunk in ontology_file.chunks():
                     f.write(chunk)
-
             validated_data["ontology_path"] = file_path
-
+        else:
+            with (
+                open(full_path, "wb") as f,
+                open(settings.DEFAULT_ONTOLOGY_PATH, "rb") as f_r,
+            ):
+                f.write(f_r.read())
         return super().create(validated_data)
 
 
