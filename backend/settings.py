@@ -205,4 +205,4 @@ MINERU_TIMEOUT = int(os.getenv("MINERU_TIMEOUT", "180"))  # 3分钟超时
 MAX_UPLOAD_SIZE = int(os.getenv("MAX_UPLOAD_SIZE", str(50 * 1024 * 1024)))  # 50MB
 
 # ===== 默认本体论路径 =====
-DEFAULT_ONTOLOGY_PATH = "ontology/default_ontology.json"
+DEFAULT_ONTOLOGY_PATH = "ontology_v2.json"
