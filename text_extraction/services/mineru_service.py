@@ -2,6 +2,7 @@
 MinerU服务 - PDF转Markdown
 """
 
+import os
 import logging
 from pathlib import Path
 import uuid
@@ -23,7 +24,9 @@ class MinerUConversionResult(BaseModel):
     """MinerU PDF转Markdown转换结果"""
 
     status: str = Field(description="转换状态，如 'success'")
-    output_path: str = Field(description="生成的 Markdown 文件完整路径")
+    output_path: str = Field(
+        description="生成的 Markdown 文件相对路径,相对传入的文件夹",
+    )
     mode: str = Field(description="使用的转换模式，'auto' 或 'ocr'")
     backend: str = Field(default="unknown", description="MinerU 后端类型")
     version: str = Field(default="unknown", description="MinerU 版本")
@@ -94,7 +97,6 @@ class MinerUService:
 
             # 解析响应
             api_response = response.json()
-            logger.info(f"MinerU API 响应: {api_response}")
 
             # 提取 md_content
             results = api_response.get("results", {})
@@ -113,9 +115,10 @@ class MinerUService:
             method_dir = "ocr" if mode == "ocr" else "auto"
             output_dir = Path(output_path) / method_dir
             output_dir.mkdir(parents=True, exist_ok=True)
-
+            markdown_file_name = f"{uuid.uuid4()}.md"
             # 写入 Markdown 文件
-            markdown_file_path = output_dir / f"{uuid.uuid4()}.md"
+            markdown_file_path = output_dir / markdown_file_name
+            logger.info("输出路径 %s", markdown_file_path)
             with open(markdown_file_path, "w", encoding="utf-8") as f:
                 f.write(md_content)
 
@@ -124,7 +127,7 @@ class MinerUService:
             # 返回结果
             return MinerUConversionResult(
                 status="success",
-                output_path=str(markdown_file_path),
+                output_path=os.path.join(method_dir, markdown_file_name),
                 mode=mode,
                 backend=api_response.get("backend", "unknown"),
                 version=api_response.get("version", "unknown"),
