@@ -198,8 +198,8 @@ DEEPSEEK_BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
 DEEPSEEK_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
 
 # ===== MinerU Service 配置 =====
-MINERU_API_URL = os.getenv("MINERU_API_URL", "http://localhost:8000")
-MINERU_TIMEOUT = int(os.getenv("MINERU_TIMEOUT", "300"))
+MINERU_API_URL = os.getenv("MINERU_API_URL", "http://127.0.0.1:8000")
+MINERU_TIMEOUT = int(os.getenv("MINERU_TIMEOUT", "180"))  # 3分钟超时
 
 # ===== 文件上传配置 =====
 MAX_UPLOAD_SIZE = int(os.getenv("MAX_UPLOAD_SIZE", str(50 * 1024 * 1024)))  # 50MB
