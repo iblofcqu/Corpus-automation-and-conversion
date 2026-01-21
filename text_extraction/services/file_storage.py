@@ -3,7 +3,6 @@
 """
 
 import os
-from pathlib import Path
 
 from django.conf import settings
 
@@ -76,7 +75,7 @@ class FileStorageService:
             文件内容
         """
         full_path = FileStorageService.get_full_path(relative_path)
-        with open(full_path, "r", encoding=encoding) as f:
+        with open(full_path, encoding=encoding) as f:
             return f.read()
 
     @staticmethod

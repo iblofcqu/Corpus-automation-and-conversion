@@ -3,9 +3,9 @@
 """
 
 import logging
+
 from django.contrib.auth.models import User
 from rest_framework import authentication
-from rest_framework.exceptions import AuthenticationFailed
 
 logger = logging.getLogger(__name__)
 

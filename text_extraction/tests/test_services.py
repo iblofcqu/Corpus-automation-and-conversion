@@ -2,11 +2,10 @@
 Service层测试
 """
 
-import logging
 import json
+import logging
 import os
 import tempfile
-from unittest.mock import MagicMock, patch
 
 from django.conf import settings
 from django.test import TestCase

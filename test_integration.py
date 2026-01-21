@@ -1,6 +1,7 @@
-import requests
-import time
 import os
+import time
+
+import requests
 
 # Configuration
 BASE_URL = "http://127.0.0.1:8080"
@@ -17,9 +18,8 @@ def test_get_projects():
         data = response.json()
         print(f"Projects count: {data.get('count', 0)}")
         return True
-    else:
-        print(f"Error: {response.text}")
-        return False
+    print(f"Error: {response.text}")
+    return False
 
 
 def test_create_project():
@@ -33,9 +33,8 @@ def test_create_project():
         project_id = data["id"]
         print(f"Created project ID: {project_id}")
         return project_id
-    else:
-        print(f"Error: {response.text}")
-        return None
+    print(f"Error: {response.text}")
+    return None
 
 
 def test_get_project_detail(project_id):
@@ -47,9 +46,8 @@ def test_get_project_detail(project_id):
         data = response.json()
         print(f"Project name: {data['name']}")
         return True
-    else:
-        print(f"Error: {response.text}")
-        return False
+    print(f"Error: {response.text}")
+    return False
 
 
 def test_upload_pdf(project_id):
@@ -68,9 +66,8 @@ def test_upload_pdf(project_id):
         file_id = data["id"]
         print(f"Uploaded file ID: {file_id}")
         return file_id
-    else:
-        print(f"Error: {response.text}")
-        return None
+    print(f"Error: {response.text}")
+    return None
 
 
 def test_get_file_detail_and_poll(file_id):
@@ -88,14 +85,13 @@ def test_get_file_detail_and_poll(file_id):
             if status == "completed":
                 print("File processing completed!")
                 return True
-            elif status == "failed":
+            if status == "failed":
                 print(f"File processing failed: {data.get('error_message', '')}")
                 return False
-            elif status == "completed":
+            if status == "completed":
                 return True
-            else:
-                print("File still processing, waiting 10 seconds...")
-                time.sleep(10)
+            print("File still processing, waiting 10 seconds...")
+            time.sleep(10)
         else:
             print(f"Error: {response.text}")
             return False

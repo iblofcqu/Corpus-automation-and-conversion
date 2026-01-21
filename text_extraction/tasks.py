@@ -7,7 +7,6 @@ import os
 from pathlib import Path
 
 from celery import shared_task
-from django.conf import settings
 
 from .models import File
 from .services import FileStorageService, MinerUService, OntologyService

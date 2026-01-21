@@ -2,7 +2,6 @@
 API视图测试
 """
 
-from io import BytesIO
 from unittest.mock import patch
 
 from django.contrib.auth.models import User

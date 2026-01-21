@@ -2,10 +2,10 @@
 MinerU服务 - PDF转Markdown
 """
 
-import os
 import logging
-from pathlib import Path
+import os
 import uuid
+from pathlib import Path
 
 import requests
 from django.conf import settings

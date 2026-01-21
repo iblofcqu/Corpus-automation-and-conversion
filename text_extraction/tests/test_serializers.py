@@ -2,17 +2,14 @@
 序列化器测试
 """
 
-from io import BytesIO
 
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
-from rest_framework.exceptions import ValidationError
 
 from text_extraction.models import File, Project
 from text_extraction.serializers import (
     FileUploadSerializer,
-    ProjectCreateSerializer,
     ProjectSerializer,
 )
 

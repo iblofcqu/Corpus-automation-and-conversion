@@ -5,10 +5,8 @@ API视图
 import json
 import os
 import uuid
-from pathlib import Path
 
 from django.conf import settings
-from django.http import Http404
 from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiTypes,
@@ -29,7 +27,6 @@ from .serializers import (
     ProjectSerializer,
     ProjectUpdateSerializer,
 )
-
 
 # X-User-ID Header 参数定义
 X_USER_ID_PARAM = OpenApiParameter(
@@ -217,7 +214,7 @@ class FileViewSet(viewsets.ReadOnlyModelViewSet):
                 settings.MEDIA_ROOT, file_obj.mineru_output_path
             )
             if os.path.exists(markdown_path):
-                with open(markdown_path, "r", encoding="utf-8") as f:
+                with open(markdown_path, encoding="utf-8") as f:
                     result["markdown"] = f.read()
 
         # 读取本体论JSON
@@ -226,7 +223,7 @@ class FileViewSet(viewsets.ReadOnlyModelViewSet):
                 settings.MEDIA_ROOT, file_obj.extraction_output_path
             )
             if os.path.exists(ontology_path):
-                with open(ontology_path, "r", encoding="utf-8") as f:
+                with open(ontology_path, encoding="utf-8") as f:
                     result["ontology"] = json.load(f)
 
         return Response(result)

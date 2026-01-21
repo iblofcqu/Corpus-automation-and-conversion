@@ -146,13 +146,11 @@ import copy
 import json
 import os
 import re
-import traceback
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from openai import OpenAI
-
 
 # ═══════════════════════════════════════════════════════════════════════════
 #                           LLM 配置
@@ -221,17 +219,16 @@ class MemoryPool:
         """
         if isinstance(obj, Path):
             return str(obj)
-        elif isinstance(obj, dict):
+        if isinstance(obj, dict):
             return {
                 key: self._convert_to_serializable(value) for key, value in obj.items()
             }
-        elif isinstance(obj, list):
+        if isinstance(obj, list):
             return [self._convert_to_serializable(item) for item in obj]
-        elif isinstance(obj, (str, int, float, bool, type(None))):
+        if isinstance(obj, (str, int, float, bool, type(None))):
             return obj
-        else:
-            # 其他类型转换为字符串
-            return str(obj)
+        # 其他类型转换为字符串
+        return str(obj)
 
     def save_memory(self, output_path: str):
         """保存记忆池到文件（用于调试）"""
@@ -267,7 +264,7 @@ class HeaderExtractor:
     """
 
     @staticmethod
-    def extract(md_content: str, memory_pool: MemoryPool) -> List[Dict]:
+    def extract(md_content: str, memory_pool: MemoryPool) -> list[dict]:
         """
         提取标题层级
 
@@ -363,7 +360,7 @@ class SplitPlanner:
     """
 
     @staticmethod
-    def plan(memory_pool: MemoryPool) -> Dict:
+    def plan(memory_pool: MemoryPool) -> dict:
         """
         生成拆分方案
 
@@ -496,7 +493,7 @@ class DocumentSplitter:
     """
 
     @staticmethod
-    def split(memory_pool: MemoryPool) -> List[Dict]:
+    def split(memory_pool: MemoryPool) -> list[dict]:
         """
         执行文档拆分
 
@@ -577,8 +574,8 @@ class InformationExtractor:
 
     @staticmethod
     def _extract_responsible_persons(
-        memory_pool: MemoryPool, ontology: Dict
-    ) -> List[Dict]:
+        memory_pool: MemoryPool, ontology: dict
+    ) -> list[dict]:
         """
         提取责任人员信息，综合人员伤亡情况和责任认定两部分
 
@@ -671,7 +668,7 @@ class InformationExtractor:
                     if json_match:
                         result = json.loads(json_match.group())
                     else:
-                        memory_pool.log(f"    警告: 无法解析JSON结果")
+                        memory_pool.log("    警告: 无法解析JSON结果")
                         result = []
 
             memory_pool.log(f"    提取到 {len(result)} 个责任人员")
@@ -683,7 +680,7 @@ class InformationExtractor:
 
     @staticmethod
     def _classify_with_options(
-        content: str, field_name: str, options: List[str], memory_pool: MemoryPool
+        content: str, field_name: str, options: list[str], memory_pool: MemoryPool
     ) -> str:
         """
         从预定义选项中分类选择
@@ -746,7 +743,7 @@ class InformationExtractor:
 
     @staticmethod
     def _collect_cross_chunk_content(
-        source_categories: List[str], memory_pool: MemoryPool
+        source_categories: list[str], memory_pool: MemoryPool
     ) -> str:
         """
         收集多个类别的chunk内容
@@ -768,7 +765,7 @@ class InformationExtractor:
                     collected_content.append(f"【{category}】\n{chunk['content']}")
 
         if not collected_content:
-            memory_pool.log(f"    警告: 未找到任何源类别的内容")
+            memory_pool.log("    警告: 未找到任何源类别的内容")
             return ""
 
         # 合并内容，限制总长度
@@ -784,7 +781,7 @@ class InformationExtractor:
         return merged_content
 
     @staticmethod
-    def extract(memory_pool: MemoryPool) -> Dict:
+    def extract(memory_pool: MemoryPool) -> dict:
         """
         提取信息
 
@@ -857,9 +854,9 @@ class InformationExtractor:
     @staticmethod
     def _extract_field(
         field_name: str,
-        field_def: Dict,
+        field_def: dict,
         content: str,
-        ontology: Dict,
+        ontology: dict,
         memory_pool: MemoryPool,
     ) -> Any:
         """
@@ -919,7 +916,7 @@ class InformationExtractor:
             )
             reference_content = content
             if not content:
-                memory_pool.log(f"    警告: 未收集到任何内容")
+                memory_pool.log("    警告: 未收集到任何内容")
                 # 返回默认值
                 if field_def["type"] == "array":
                     default_value = []
@@ -993,7 +990,7 @@ class InformationExtractor:
                         if json_match:
                             result = json.loads(json_match.group())
                         else:
-                            memory_pool.log(f"    警告: 无法解析JSON结果")
+                            memory_pool.log("    警告: 无法解析JSON结果")
                             result = [] if field_type == "array" else {}
             else:
                 # 字符串或文本类型
@@ -1100,17 +1097,17 @@ class OntologyAgent:
         self.ontology_path = Path(ontology_path)
         self.ontology = self._load_ontology()
 
-    def _load_ontology(self) -> Dict:
+    def _load_ontology(self) -> dict:
         """加载本体论"""
         print(f"\n📖 加载本体论: {self.ontology_path}")
-        with open(self.ontology_path, "r", encoding="utf-8") as f:
+        with open(self.ontology_path, encoding="utf-8") as f:
             ontology = json.load(f)
         print(f"   版本: {ontology['ontology_metadata']['version']}")
         print(f"   名称: {ontology['ontology_metadata']['name']}")
         print(f"   类别数: {len(ontology['ontology_structure'])}")
         return ontology
 
-    def process_document(self, md_file_path: str, output_dir: str) -> Dict:
+    def process_document(self, md_file_path: str, output_dir: str) -> dict:
         """
         处理单个文档
 
@@ -1137,35 +1134,35 @@ class OntologyAgent:
         try:
             # 读取文档
             memory_pool.log("读取文档内容")
-            with open(md_path, "r", encoding="utf-8", errors="ignore") as f:
+            with open(md_path, encoding="utf-8", errors="ignore") as f:
                 md_content = f.read()
             memory_pool.set("document_content", md_content)
             print(f"   文档大小: {len(md_content):,} 字符")
 
             # 1️⃣ 提取标题层级
-            print(f"\n1️⃣  提取标题层级")
+            print("\n1️⃣  提取标题层级")
             headers = HeaderExtractor.extract(md_content, memory_pool)
             print(f"   ✓ 提取到 {len(headers)} 个标题")
 
             # 2️⃣ LLM 规划拆分方案
-            print(f"\n2️⃣  LLM 规划拆分方案")
+            print("\n2️⃣  LLM 规划拆分方案")
             split_plan = SplitPlanner.plan(memory_pool)
             print(f"   ✓ 生成 {len(split_plan)} 个拆分chunk")
 
             # 3️⃣ 执行文档拆分
-            print(f"\n3️⃣  执行文档拆分")
+            print("\n3️⃣  执行文档拆分")
             chunks = DocumentSplitter.split(memory_pool)
             print(f"   ✓ 拆分完成，共 {len(chunks)} 个chunk")
             for chunk in chunks:
                 print(f"      - {chunk['chunk_id']}: {chunk['char_count']:,} 字符")
 
             # 4️⃣ 提取信息
-            print(f"\n4️⃣  提取信息 (严格复制原文)")
+            print("\n4️⃣  提取信息 (严格复制原文)")
             extracted_data = InformationExtractor.extract(memory_pool)
             print(f"   ✓ 提取完成，共 {len(extracted_data)} 个类别")
 
             # 5️⃣ 序列化为 JSON
-            print(f"\n5️⃣  序列化为 JSON")
+            print("\n5️⃣  序列化为 JSON")
             json_path = f"{md_path.stem}_ontology.json"
             json_output_path = output_path / json_path
             OntologySerializer.serialize(memory_pool, str(json_output_path))
@@ -1203,7 +1200,7 @@ class OntologyAgent:
             print(f"   ✓ 记忆池已保存: {memory_output_path.name}")
 
             print(f"\n{'=' * 80}")
-            print(f"✓ 处理完成")
+            print("✓ 处理完成")
             print(f"{'=' * 80}")
 
             return {
@@ -1234,7 +1231,7 @@ class OntologyAgent:
         output_path.mkdir(exist_ok=True, parents=True)
 
         print(f"\n{'=' * 80}")
-        print(f"批量处理文档")
+        print("批量处理文档")
         print(f"{'=' * 80}")
         print(f"Dataset目录: {dataset_path}")
         print(f"输出目录: {output_path}")
@@ -1257,7 +1254,7 @@ class OntologyAgent:
             ]
 
             if not md_files:
-                print(f"  ✗ 未找到 markdown 文件")
+                print("  ✗ 未找到 markdown 文件")
                 fail_count += 1
                 continue
 
@@ -1278,7 +1275,7 @@ class OntologyAgent:
             json.dump(results, f, ensure_ascii=False, indent=2)
 
         print(f"\n{'=' * 80}")
-        print(f"批量处理完成")
+        print("批量处理完成")
         print(f"{'=' * 80}")
         print(f"  成功: {success_count} 个")
         print(f"  失败: {fail_count} 个")
