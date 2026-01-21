@@ -43,20 +43,21 @@ def process_pdf_task(self, file_id: int) -> dict:
 
         # 1. 获取PDF完整路径
         pdf_full_path = storage_service.get_full_path(file_obj.pdf_path)
-        logger.info(f"PDF路径: {pdf_full_path}")
 
         # 2. 生成输出路径
         filename_without_ext = Path(file_obj.filename).stem
         mineru_relative_path = storage_service.get_mineru_output_path(
             file_obj.project_id, filename_without_ext
         )
+        logger.info("mineru 相对路径%s", mineru_relative_path)
         mineru_full_path = storage_service.get_full_path(mineru_relative_path)
-
+        logger.info("输出的绝对路径:%s", mineru_full_path)
         # 确保输出目录存在
         storage_service.ensure_dir(mineru_full_path)
 
         # 3. 调用MinerU转换PDF
         logger.info("调用MinerU服务...")
+        # 传递相对路径
         mineru_result = mineru_service.convert_pdf_to_markdown(
             pdf_path=pdf_full_path,
             output_path=mineru_full_path,
@@ -64,11 +65,15 @@ def process_pdf_task(self, file_id: int) -> dict:
         )
 
         # 更新MinerU输出路径
-        file_obj.mineru_output_path = mineru_relative_path
+        file_obj.mineru_output_path = os.path.join(
+            mineru_relative_path,
+            mineru_result.output_path,
+        )
         file_obj.save(update_fields=["mineru_output_path", "updated_at"])
 
         # 5. 获取MinerU生成的Markdown文件路径（这是文件而非目录）
-        markdown_file_path = mineru_result.output_path
+        # 绝对路径
+        markdown_file_path = os.path.join(mineru_full_path, mineru_result.output_path)
         if not os.path.exists(markdown_file_path):
             raise Exception(f"MinerU输出的Markdown文件不存在: {markdown_file_path}")
 
@@ -92,15 +97,13 @@ def process_pdf_task(self, file_id: int) -> dict:
             output_dir=extraction_output_dir,
         )
 
-        # 更新提取输出路径（保存实际生成的JSON文件路径）
+        # 更新提取输出路径（保存实际生成的JSON文件路径）,相对extraction_output_dir的路径
         actual_output_file = extraction_result.get("output_path")
-        if actual_output_file:
-            # 转换为相对路径
-            file_obj.extraction_output_path = os.path.relpath(
-                actual_output_file, settings.MEDIA_ROOT
-            )
-        else:
-            file_obj.extraction_output_path = extraction_relative_path
+        # 转换为相对路径
+        file_obj.extraction_output_path = os.path.join(
+            extraction_relative_path,
+            actual_output_file,
+        )
         file_obj.save(update_fields=["extraction_output_path", "updated_at"])
 
         # 8. 更新状态为completed
