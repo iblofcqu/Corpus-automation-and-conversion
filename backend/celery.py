@@ -17,6 +17,10 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 # 自动发现所有已安装应用的tasks.py
 app.autodiscover_tasks()
 
+# ===== MinerU 任务并发控制 =====
+# 限制 worker 并发数为 1，避免 MinerU 服务过载
+app.conf.worker_concurrency = 1
+
 
 @app.task(bind=True, ignore_result=True)
 def debug_task(self):
