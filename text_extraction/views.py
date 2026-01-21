@@ -27,6 +27,7 @@ from .serializers import (
     ProjectSerializer,
     ProjectUpdateSerializer,
 )
+from .authentication import HeaderAuthentication
 
 # X-User-ID Header 参数定义
 X_USER_ID_PARAM = OpenApiParameter(
@@ -62,6 +63,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     serializer_class = ProjectSerializer
     queryset = Project.objects.all()
+    authentication_classes = [HeaderAuthentication]
 
     def get_queryset(self):
         """只返回未删除的项目"""
@@ -92,6 +94,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
 )
 class FileUploadView(APIView):
     """文件上传视图"""
+
+    authentication_classes = [HeaderAuthentication]
 
     def post(self, request):
         serializer = FileUploadSerializer(data=request.data)
@@ -157,6 +161,7 @@ class FileViewSet(viewsets.ReadOnlyModelViewSet):
     """文件查询ViewSet（只读）"""
 
     queryset = File.objects.all()
+    authentication_classes = [HeaderAuthentication]
 
     def get_queryset(self):
         """过滤查询集"""
