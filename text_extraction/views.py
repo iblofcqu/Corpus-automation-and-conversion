@@ -9,7 +9,12 @@ from pathlib import Path
 
 from django.conf import settings
 from django.http import Http404
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    OpenApiTypes,
+    extend_schema,
+    extend_schema_view,
+)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -22,14 +27,38 @@ from .serializers import (
     FileUploadSerializer,
     ProjectCreateSerializer,
     ProjectSerializer,
+    ProjectUpdateSerializer,
+)
+
+
+# X-User-ID Header 参数定义
+X_USER_ID_PARAM = OpenApiParameter(
+    name="X-User-ID",
+    type=OpenApiTypes.STR,
+    location=OpenApiParameter.HEADER,
+    required=True,
+    description="用户ID，用于身份验证",
 )
 
 
 @extend_schema_view(
-    list=extend_schema(summary="获取项目列表", tags=["项目管理"]),
-    create=extend_schema(summary="创建项目", tags=["项目管理"]),
-    retrieve=extend_schema(summary="获取项目详情", tags=["项目管理"]),
-    destroy=extend_schema(summary="删除项目（软删除）", tags=["项目管理"]),
+    list=extend_schema(
+        summary="获取项目列表", tags=["项目管理"], parameters=[X_USER_ID_PARAM]
+    ),
+    create=extend_schema(
+        summary="创建项目", tags=["项目管理"], parameters=[X_USER_ID_PARAM]
+    ),
+    retrieve=extend_schema(
+        summary="获取项目详情", tags=["项目管理"], parameters=[X_USER_ID_PARAM]
+    ),
+    destroy=extend_schema(
+        summary="删除项目（软删除）", tags=["项目管理"], parameters=[X_USER_ID_PARAM]
+    ),
+    update=extend_schema(
+        summary="修改项目",
+        tags=["项目管理"],
+        parameters=[X_USER_ID_PARAM],
+    ),
 )
 class ProjectViewSet(viewsets.ModelViewSet):
     """项目管理ViewSet"""
@@ -47,6 +76,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
         """根据动作选择序列化器"""
         if self.action == "create":
             return ProjectCreateSerializer
+        if self.action in ["update", "partial_update"]:
+            return ProjectUpdateSerializer
         return ProjectSerializer
 
     def perform_destroy(self, instance):
@@ -60,6 +91,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     responses={201: FileDetailSerializer},
     summary="上传PDF文件",
     tags=["文件管理"],
+    parameters=[X_USER_ID_PARAM],
 )
 class FileUploadView(APIView):
     """文件上传视图"""
@@ -117,8 +149,12 @@ class FileUploadView(APIView):
 
 
 @extend_schema_view(
-    list=extend_schema(summary="获取文件列表", tags=["文件管理"]),
-    retrieve=extend_schema(summary="获取文件详情", tags=["文件管理"]),
+    list=extend_schema(
+        summary="获取文件列表", tags=["文件管理"], parameters=[X_USER_ID_PARAM]
+    ),
+    retrieve=extend_schema(
+        summary="获取文件详情", tags=["文件管理"], parameters=[X_USER_ID_PARAM]
+    ),
 )
 class FileViewSet(viewsets.ReadOnlyModelViewSet):
     """文件查询ViewSet（只读）"""
@@ -152,6 +188,7 @@ class FileViewSet(viewsets.ReadOnlyModelViewSet):
     @extend_schema(
         summary="获取文件内容",
         tags=["文件管理"],
+        parameters=[X_USER_ID_PARAM],
         responses={
             200: {
                 "type": "object",
@@ -193,4 +230,3 @@ class FileViewSet(viewsets.ReadOnlyModelViewSet):
                     result["ontology"] = json.load(f)
 
         return Response(result)
-

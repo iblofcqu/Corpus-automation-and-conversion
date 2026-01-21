@@ -3,6 +3,8 @@ DRF序列化器
 """
 
 import os
+import json
+from datetime import datetime
 
 from django.conf import settings
 from rest_framework import serializers
@@ -31,7 +33,13 @@ class ProjectSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "created_by", "created_at", "updated_at"]
+        read_only_fields = [
+            "id",
+            "created_by",
+            "created_at",
+            "updated_at",
+            "is_deleted",
+        ]
 
     def get_file_count(self, obj: Project) -> int:
         """获取项目的文件数量"""
@@ -142,3 +150,85 @@ class FileUploadSerializer(serializers.Serializer):
             )
 
         return value
+
+
+class ProjectUpdateSerializer(serializers.ModelSerializer):
+    """项目更新序列化器（支持文件上传）"""
+
+    ontology_path = serializers.FileField(
+        required=False,
+        allow_null=True,
+        help_text="本体论JSON文件（上传时为文件对象，返回时为文件路径字符串）",
+    )
+
+    class Meta:
+        model = Project
+        fields = [
+            "name",
+            "id",
+            "ontology_path",
+        ]
+
+    def validate_ontology_file(self, value):
+        """验证上传的本体论文件"""
+        if value and hasattr(value, "read"):  # 判断是否为文件对象
+            # 验证文件扩展名
+            if not value.name.endswith(".json"):
+                raise serializers.ValidationError("只支持.json格式的文件")
+
+            # 验证文件大小（限制为5MB）
+            if value.size > 5 * 1024 * 1024:
+                raise serializers.ValidationError("文件大小不能超过5MB")
+
+            # 验证JSON格式
+            try:
+                content = value.read()
+                json.loads(content)
+                value.seek(0)  # 重置文件指针
+            except json.JSONDecodeError as error:
+                raise serializers.ValidationError("无效的JSON文件格式") from error
+
+        return value
+
+    def to_representation(self, instance):
+        """自定义返回格式，将ontology_path转为字符串"""
+        data = super().to_representation(instance)
+        # 返回时，ontology_path 为字符串路径
+        data["ontology_path"] = (
+            instance.ontology_path if instance.ontology_path else None
+        )
+        return data
+
+    def update(self, instance, validated_data):
+        """更新项目，处理本体论文件上传"""
+        ontology_file = validated_data.pop("ontology_path", None)
+
+        # 更新基本字段
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        # 处理本体论文件上传
+        if ontology_file and hasattr(ontology_file, "read"):  # 判断是文件对象
+            # 删除旧文件（如果存在）
+            if instance.ontology_path:
+                old_path = os.path.join(settings.MEDIA_ROOT, instance.ontology_path)
+                if os.path.exists(old_path):
+                    os.remove(old_path)
+
+            # 保存新文件
+            ontology_dir = os.path.join(settings.MEDIA_ROOT, "ontology")
+            os.makedirs(ontology_dir, exist_ok=True)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"project_{instance.id}_{timestamp}.json"
+            file_path = os.path.join(ontology_dir, filename)
+
+            # 写入文件
+            with open(file_path, "wb") as f:
+                for chunk in ontology_file.chunks():
+                    f.write(chunk)
+
+            # 更新数据库路径（相对路径）
+            instance.ontology_path = os.path.join("ontology", filename)
+
+        instance.save()
+        return instance
