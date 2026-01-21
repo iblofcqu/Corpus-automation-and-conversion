@@ -47,7 +47,7 @@ class FileStorageService:
         Returns:
             相对路径
         """
-        return os.path.join("mineru", str(project_id), f"{filename}.md")
+        return os.path.join("mineru", str(project_id), f"{filename}")
 
     @staticmethod
     def get_extraction_output_path(project_id: int, filename: str) -> str:
@@ -61,7 +61,7 @@ class FileStorageService:
         Returns:
             相对路径
         """
-        return os.path.join("extraction", str(project_id), f"{filename}_ontology.json")
+        return os.path.join("extraction", str(project_id), f"{filename}")
 
     @staticmethod
     def read_file(relative_path: str, encoding: str = "utf-8") -> str:
