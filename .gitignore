@@ -37,3 +37,4 @@ htmlcov/
 *.egg-info/
 dist/
 build/
+/media
