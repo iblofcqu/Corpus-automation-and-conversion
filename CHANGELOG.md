@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/iblofcqu/Corpus-automation-and-conversion/compare/v1.0.0...v1.1.0) (2026-01-21)
+
+
+### Features
+
+* **settings:** 修改全局鉴权和APIS 部分的鉴权 ([fd9e5c1](https://github.com/iblofcqu/Corpus-automation-and-conversion/commit/fd9e5c1a630c1c1424576e2f43799890847cfb6c))
+
 ## 1.0.0 (2026-01-21)
 
 
