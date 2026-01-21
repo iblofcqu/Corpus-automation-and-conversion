@@ -30,7 +30,6 @@ openai>=1.0.0
 
 # MinerU PDF parsing
 loguru
-mineru[all]==2.7.1
 
 # Word to PDF (optional)
 docx2pdf
