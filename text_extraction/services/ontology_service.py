@@ -72,8 +72,7 @@ class OntologyService:
 
             # 执行提取（调用 process_document 方法）
             result = agent.process_document(
-                md_file_path=markdown_path,
-                output_dir=output_dir
+                md_file_path=markdown_path, output_dir=output_dir
             )
 
             # 验证结果
@@ -82,7 +81,9 @@ class OntologyService:
                 raise OntologyError(f"本体论提取失败: {error}")
 
             output_path = result.get("output")
-            if not output_path or not os.path.exists(output_path):
+            if not output_path or not os.path.exists(
+                os.path.join(output_dir, output_path)
+            ):
                 raise OntologyError(f"本体论输出文件未生成: {output_path}")
 
             logger.info(f"本体论提取成功: {output_path}")
