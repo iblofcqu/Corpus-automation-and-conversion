@@ -1,9 +1,10 @@
+import json
 import os
 import re
-import json
 import shutil
 import sys
 from pathlib import Path
+
 from openai import OpenAI
 
 
@@ -44,7 +45,7 @@ def extract_all_headings_from_md(md_file_path):
     Extract all headings from markdown file, treating them all as level 1 initially
     """
     headings = []
-    with open(md_file_path, 'r', encoding='utf-8', errors='ignore') as f:
+    with open(md_file_path, encoding='utf-8', errors='ignore') as f:
         lines = f.readlines()
 
     for line_num, line in enumerate(lines):
@@ -267,7 +268,7 @@ def rewrite_markdown_headings(md_file_path, hierarchy, output_path=None):
         output_path = md_file_path
 
     # 读取原始文件
-    with open(md_file_path, 'r', encoding='utf-8', errors='ignore') as f:
+    with open(md_file_path, encoding='utf-8', errors='ignore') as f:
         lines = f.readlines()
 
     # 创建标题到层级的映射
@@ -325,7 +326,7 @@ def create_folder_structure_for_document(doc_folder, hierarchy, md_file, auto_di
             readme_file = doc_folder / "README.md"
             with open(readme_file, 'w', encoding='utf-8', errors='ignore') as f:
                 f.write(f"# {heading_info['title']}\n\n{heading_info['content']}")
-            print(f"    - Created: README.md (document title)")
+            print("    - Created: README.md (document title)")
             continue
         filtered_hierarchy.append(heading_info)
 
@@ -390,7 +391,7 @@ def create_folder_structure_for_document(doc_folder, hierarchy, md_file, auto_di
     if hierarchy and md_file.exists():
         dest_md = doc_folder / md_file.name
         if dest_md.exists():
-            print(f"    - Rewriting markdown headings based on LLM analysis...")
+            print("    - Rewriting markdown headings based on LLM analysis...")
             try:
                 rewrite_markdown_headings(dest_md, hierarchy)
             except Exception as e:
@@ -455,7 +456,7 @@ def organize_document_by_headings(source_dir, output_base_dir, api_key):
         llm_hierarchy = call_deepseek_for_hierarchy(headings, api_key)
 
         # Read the full markdown content
-        with open(md_file, 'r', encoding='utf-8', errors='ignore') as f:
+        with open(md_file, encoding='utf-8', errors='ignore') as f:
             lines = f.readlines()
 
         # Build heading hierarchy with content using LLM results
@@ -484,7 +485,7 @@ def organize_document_by_headings(source_dir, output_base_dir, api_key):
                         for h in hierarchy
                     ]
                 }, f, ensure_ascii=False, indent=2)
-            print(f"  ✓ Saved hierarchy analysis to hierarchy_analysis.json")
+            print("  ✓ Saved hierarchy analysis to hierarchy_analysis.json")
         except Exception as e:
             print(f"  ⚠ Warning: Could not save hierarchy analysis: {e}")
             print(f"     Folder: {doc_folder}")
@@ -518,7 +519,7 @@ def main():
     print("="*60)
     print(f"源目录: {source_dir}")
     print(f"输出目录: {output_dir}")
-    print(f"LLM: DeepSeek (使用 Chain of Thought 提示)")
+    print("LLM: DeepSeek (使用 Chain of Thought 提示)")
     print("="*60 + "\n")
 
     organize_document_by_headings(source_dir, output_dir, api_key)

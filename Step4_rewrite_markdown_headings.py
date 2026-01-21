@@ -8,7 +8,6 @@
 """
 
 import json
-import os
 from pathlib import Path
 
 
@@ -25,7 +24,7 @@ def rewrite_markdown_headings(md_file_path, hierarchy, output_path=None):
         output_path = md_file_path
 
     # 读取原始文件
-    with open(md_file_path, 'r', encoding='utf-8', errors='ignore') as f:
+    with open(md_file_path, encoding='utf-8', errors='ignore') as f:
         lines = f.readlines()
 
     # 创建标题到层级的映射
@@ -91,16 +90,16 @@ def process_single_document(doc_folder):
     # 查找hierarchy_analysis.json
     hierarchy_file = doc_folder / "hierarchy_analysis.json"
     if not hierarchy_file.exists():
-        print(f"  ✗ 未找到 hierarchy_analysis.json")
+        print("  ✗ 未找到 hierarchy_analysis.json")
         return False
 
     # 读取层级信息
     try:
-        with open(hierarchy_file, 'r', encoding='utf-8') as f:
+        with open(hierarchy_file, encoding='utf-8') as f:
             hierarchy_data = json.load(f)
         hierarchy = hierarchy_data.get('hierarchy', [])
         if not hierarchy:
-            print(f"  ✗ hierarchy_analysis.json 中没有层级信息")
+            print("  ✗ hierarchy_analysis.json 中没有层级信息")
             return False
     except Exception as e:
         print(f"  ✗ 读取 hierarchy_analysis.json 失败: {e}")
@@ -112,7 +111,7 @@ def process_single_document(doc_folder):
     md_files = [f for f in md_files if f.name.lower() != "readme.md"]
 
     if not md_files:
-        print(f"  ✗ 未找到markdown文件")
+        print("  ✗ 未找到markdown文件")
         return False
 
     md_file = md_files[0]
@@ -122,7 +121,7 @@ def process_single_document(doc_folder):
     # 重写markdown文件
     try:
         result = rewrite_markdown_headings(md_file, hierarchy)
-        print(f"  ✓ 标题重写完成:")
+        print("  ✓ 标题重写完成:")
         print(f"    - 已修改: {result['rewritten']} 个标题")
         print(f"    - 未改变: {result['unchanged']} 个标题")
         return True
@@ -149,11 +148,11 @@ def process_all_documents(dataset_dir, dry_run=False):
     doc_folders = [f for f in dataset_path.iterdir() if f.is_dir()]
 
     if not doc_folders:
-        print(f"错误: Dataset目录下没有子文件夹")
+        print("错误: Dataset目录下没有子文件夹")
         return
 
     print(f"\n{'='*80}")
-    print(f"批量重写Markdown标题等级")
+    print("批量重写Markdown标题等级")
     print(f"{'='*80}")
     print(f"Dataset目录: {dataset_path}")
     print(f"找到 {len(doc_folders)} 个文档文件夹")
@@ -177,12 +176,12 @@ def process_all_documents(dataset_dir, dry_run=False):
             md_files = [f for f in doc_folder.glob("*.md") if f.name.lower() != "readme.md"]
 
             if hierarchy_file.exists() and md_files:
-                print(f"  ✓ 准备就绪")
+                print("  ✓ 准备就绪")
                 print(f"    - 层级文件: {hierarchy_file.name}")
                 print(f"    - Markdown: {md_files[0].name}")
                 success_count += 1
             else:
-                print(f"  ✗ 跳过（缺少必要文件）")
+                print("  ✗ 跳过（缺少必要文件）")
                 skip_count += 1
         else:
             # 执行模式：实际处理
@@ -195,12 +194,12 @@ def process_all_documents(dataset_dir, dry_run=False):
 
     # 总结
     print(f"{'='*80}")
-    print(f"处理完成!")
+    print("处理完成!")
     print(f"{'='*80}")
     if dry_run:
         print(f"  准备就绪: {success_count} 个")
         print(f"  将跳过: {skip_count} 个")
-        print(f"\n运行时不加 --dry-run 参数即可执行实际修改")
+        print("\n运行时不加 --dry-run 参数即可执行实际修改")
     else:
         print(f"  成功: {success_count} 个")
         print(f"  跳过: {skip_count} 个")
@@ -258,7 +257,7 @@ def main():
     if args.single:
         # 处理单个文档
         print(f"\n{'='*80}")
-        print(f"处理单个文档")
+        print("处理单个文档")
         print(f"{'='*80}")
         print(f"文档路径: {args.single}\n")
 
@@ -270,11 +269,11 @@ def main():
             md_files = [f for f in doc_folder.glob("*.md") if f.name.lower() != "readme.md"]
 
             if hierarchy_file.exists() and md_files:
-                print(f"✓ 准备就绪")
+                print("✓ 准备就绪")
                 print(f"  - 层级文件: {hierarchy_file.name}")
                 print(f"  - Markdown: {md_files[0].name}")
             else:
-                print(f"✗ 缺少必要文件")
+                print("✗ 缺少必要文件")
         else:
             process_single_document(args.single)
     else:

@@ -1,9 +1,9 @@
 # Copyright (c) Opendatalab. All rights reserved.
-import os
 import argparse
+import os
 from pathlib import Path
-from loguru import logger
 
+from loguru import logger
 from mineru.cli.common import do_parse, read_fn
 from mineru.utils.guess_suffix_or_lang import guess_suffix_by_path
 
@@ -44,7 +44,7 @@ def batch_convert_pdfs(input_path, output_dir, backend="pipeline", method="auto"
         # 如果是单个文件
         if guess_suffix_by_path(input_path) in pdf_suffixes + image_suffixes:
             path_list.append(Path(input_path))
-            logger.info(f"找到 1 个文件待处理")
+            logger.info("找到 1 个文件待处理")
         else:
             logger.error(f"不支持的文件类型: {input_path}")
             return
