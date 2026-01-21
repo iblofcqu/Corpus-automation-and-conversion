@@ -71,28 +71,40 @@ def process_pdf_task(self, file_id: int) -> dict:
         ontology_relative_path = file_obj.project.ontology_path
         ontology_full_path = storage_service.get_full_path(ontology_relative_path)
 
-        # 5. 生成本体论提取输出路径
+        # 5. 获取MinerU生成的Markdown文件路径（这是文件而非目录）
+        markdown_file_path = mineru_result.output_path
+        if not os.path.exists(markdown_file_path):
+            raise Exception(f"MinerU输出的Markdown文件不存在: {markdown_file_path}")
+
+        # 6. 生成本体论提取输出目录路径
         extraction_relative_path = storage_service.get_extraction_output_path(
             file_obj.project_id, filename_without_ext
         )
-        extraction_full_path = storage_service.get_full_path(extraction_relative_path)
+        extraction_output_dir = storage_service.get_full_path(extraction_relative_path)
 
         # 确保输出目录存在
-        storage_service.ensure_dir(extraction_full_path)
+        storage_service.ensure_dir(extraction_output_dir)
 
-        # 6. 调用本体论提取服务
+        # 7. 调用本体论提取服务
         logger.info("调用本体论提取服务...")
         extraction_result = ontology_service.extract_information(
-            markdown_path=mineru_full_path,
+            markdown_path=markdown_file_path,
             ontology_path=ontology_full_path,
-            output_path=extraction_full_path,
+            output_dir=extraction_output_dir,
         )
 
-        # 更新提取输出路径
-        file_obj.extraction_output_path = extraction_relative_path
+        # 更新提取输出路径（保存实际生成的JSON文件路径）
+        actual_output_file = extraction_result.get("output_path")
+        if actual_output_file:
+            # 转换为相对路径
+            file_obj.extraction_output_path = os.path.relpath(
+                actual_output_file, settings.MEDIA_ROOT
+            )
+        else:
+            file_obj.extraction_output_path = extraction_relative_path
         file_obj.save(update_fields=["extraction_output_path", "updated_at"])
 
-        # 7. 更新状态为completed
+        # 8. 更新状态为completed
         file_obj.status = File.Status.COMPLETED
         file_obj.error_message = None
         file_obj.save(update_fields=["status", "error_message", "updated_at"])
