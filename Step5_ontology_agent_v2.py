@@ -142,22 +142,28 @@
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
-import json
-import re
-from pathlib import Path
-from typing import Dict, List, Any, Optional
-from datetime import datetime
-from openai import OpenAI
 import copy
+import json
+import os
+import re
+import traceback
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+from openai import OpenAI
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 #                           LLM 配置
 # ═══════════════════════════════════════════════════════════════════════════
 
-MODEL = "deepseek-chat"
-API_KEY = 'sk-4f3ca5dd06a447aeb81989119aa197c6'
-BASE_URL = "https://api.deepseek.com"
+MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
+API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
+BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+
+if not API_KEY:
+    raise ValueError("DEEPSEEK_API_KEY environment variable is required")
 
 client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 
