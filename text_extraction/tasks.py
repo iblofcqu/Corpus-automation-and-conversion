@@ -85,7 +85,10 @@ def process_pdf_task(self, file_id: int) -> dict:
         logger.info("调用本体论提取服务...")
         extraction_result = ontology_service.extract_information(
             markdown_path=markdown_file_path,
-            ontology_path=file_obj.project.ontology_path,
+            ontology_path=os.path.join(
+                "media",
+                file_obj.project.ontology_path,
+            ),
             output_dir=extraction_output_dir,
         )
 
