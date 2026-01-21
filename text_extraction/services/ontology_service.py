@@ -7,7 +7,6 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Optional
 
 from django.conf import settings
 
@@ -21,7 +20,7 @@ if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 
-class OntologyException(Exception):
+class OntologyError(Exception):
     """本体论提取异常"""
 
     pass
@@ -39,7 +38,7 @@ class OntologyService:
         self,
         markdown_path: str,
         ontology_path: str,
-        output_path: str,
+        output_dir: str,
     ) -> dict:
         """
         从Markdown文件中提取本体论信息
@@ -47,53 +46,60 @@ class OntologyService:
         Args:
             markdown_path: Markdown文件完整路径
             ontology_path: 本体论定义文件完整路径
-            output_path: 输出JSON文件完整路径
+            output_dir: 输出目录路径（Agent会自动生成{filename}_ontology.json）
 
         Returns:
             提取结果字典
 
         Raises:
-            OntologyException: 提取失败时抛出
+            OntologyError: 提取失败时抛出
         """
         try:
             logger.info(f"开始本体论提取: {markdown_path}")
 
             # 验证输入文件
             if not os.path.exists(markdown_path):
-                raise OntologyException(f"Markdown文件不存在: {markdown_path}")
+                raise OntologyError(f"Markdown文件不存在: {markdown_path}")
 
             if not os.path.exists(ontology_path):
-                raise OntologyException(f"本体论文件不存在: {ontology_path}")
+                raise OntologyError(f"本体论文件不存在: {ontology_path}")
 
-            # 创建Agent实例
-            agent = OntologyAgent(
-                markdown_file=markdown_path,
-                ontology_file=ontology_path,
-                output_dir=os.path.dirname(output_path),
+            # 创建输出目录
+            os.makedirs(output_dir, exist_ok=True)
+
+            # 创建Agent实例（参数是ontology_path）
+            agent = OntologyAgent(ontology_path=ontology_path)
+
+            # 执行提取（调用 process_document 方法）
+            result = agent.process_document(
+                md_file_path=markdown_path,
+                output_dir=output_dir
             )
 
-            # 执行提取
-            result = agent.run()
+            # 验证结果
+            if not result.get("success"):
+                error = result.get("error", "Unknown error")
+                raise OntologyError(f"本体论提取失败: {error}")
 
-            # 验证输出文件
-            if not os.path.exists(output_path):
-                raise OntologyException(f"本体论输出文件未生成: {output_path}")
+            output_path = result.get("output")
+            if not output_path or not os.path.exists(output_path):
+                raise OntologyError(f"本体论输出文件未生成: {output_path}")
 
             logger.info(f"本体论提取成功: {output_path}")
 
             return {
                 "status": "success",
                 "output_path": output_path,
-                "fields_extracted": result.get("fields_extracted", 0),
+                "document": result.get("document"),
             }
 
-        except OntologyException:
+        except OntologyError:
             raise
 
         except Exception as e:
             error_msg = f"本体论提取失败: {str(e)}"
             logger.error(error_msg)
-            raise OntologyException(error_msg) from e
+            raise OntologyError(error_msg) from e
 
     def validate_ontology_file(self, ontology_path: str) -> bool:
         """
@@ -106,7 +112,7 @@ class OntologyService:
             是否有效
         """
         try:
-            with open(ontology_path, "r", encoding="utf-8") as f:
+            with open(ontology_path, encoding="utf-8") as f:
                 data = json.load(f)
 
             # 基本结构验证
@@ -115,11 +121,7 @@ class OntologyService:
 
             # 检查必要的顶层键
             required_keys = ["categories"]
-            for key in required_keys:
-                if key not in data:
-                    return False
-
-            return True
+            return all(key in data for key in required_keys)
 
         except Exception as e:
             logger.warning(f"本体论文件验证失败: {str(e)}")
