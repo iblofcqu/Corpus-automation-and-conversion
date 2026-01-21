@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # MinerU PDF 解析服务
+  mineru:
+    image: mineru:latest
+    container_name: corpus_mineru
+    ports:
+      - "8000:8000"
+    volumes:
+      # 映射本地数据目录
+      - ./data/tmp/mineru:/media
+      # 映射模型缓存目录（避免反复下载模型）
+      # - ./data/models/huggingface:/root/.cache/huggingface
+      # - ./data/models/modelscope:/root/.cache/modelscope
+      # - ./data/models/torch:/root/.cache/torch
+    environment:
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
+      # 设置 HuggingFace 镜像源（可选，加速下载）
+      - HF_ENDPOINT=https://hf-mirror.com
+      - MINERU_MODEL_SOURCE=local
+    command:
+      --host 0.0.0.0
+    entrypoint: mineru-api
+    restart: unless-stopped
+
+  # Redis 缓存服务
+  redis:
+    image: redis:7-alpine
+    container_name: corpus_redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass redis_dev_password
+    environment:
+      - REDIS_PASSWORD=redis_dev_password
+    restart: unless-stopped
+
+  # RabbitMQ 消息队列服务
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: corpus_rabbitmq
+    ports:
+      - "5672:5672"   # AMQP 协议端口
+      - "15672:15672" # 管理界面端口
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=rabbitmq_dev_password
+      - RABBITMQ_DEFAULT_VHOST=/
+    restart: unless-stopped
