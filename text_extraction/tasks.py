@@ -67,10 +67,6 @@ def process_pdf_task(self, file_id: int) -> dict:
         file_obj.mineru_output_path = mineru_relative_path
         file_obj.save(update_fields=["mineru_output_path", "updated_at"])
 
-        # 4. 获取本体论文件路径
-        ontology_relative_path = file_obj.project.ontology_path
-        ontology_full_path = storage_service.get_full_path(ontology_relative_path)
-
         # 5. 获取MinerU生成的Markdown文件路径（这是文件而非目录）
         markdown_file_path = mineru_result.output_path
         if not os.path.exists(markdown_file_path):
@@ -89,7 +85,7 @@ def process_pdf_task(self, file_id: int) -> dict:
         logger.info("调用本体论提取服务...")
         extraction_result = ontology_service.extract_information(
             markdown_path=markdown_file_path,
-            ontology_path=ontology_full_path,
+            ontology_path=file_obj.project.ontology_path,
             output_dir=extraction_output_dir,
         )
 
