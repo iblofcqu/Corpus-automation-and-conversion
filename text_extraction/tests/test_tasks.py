@@ -25,16 +25,33 @@ class ProcessPdfTaskTestCase(TestCase):
             project=self.project, filename="test.pdf", pdf_path="pdf/1/test.pdf"
         )
 
+    @patch("text_extraction.tasks.os.path.exists")
+    @patch("text_extraction.tasks.os.path.relpath")
     @patch("text_extraction.tasks.OntologyService")
     @patch("text_extraction.tasks.MinerUService")
-    def test_process_pdf_task_success(self, mock_mineru, mock_ontology):
+    def test_process_pdf_task_success(
+        self, mock_mineru, mock_ontology, mock_relpath, mock_exists
+    ):
         """测试任务成功执行"""
-        # Mock MinerU服务
+        # Mock os.path.exists 总是返回 True
+        mock_exists.return_value = True
+
+        # Mock os.path.relpath 返回相对路径
+        mock_relpath.side_effect = lambda path, start: str(path).replace(
+            str(start) + "/", ""
+        ).replace(str(start) + "\\", "")
+
+        # Mock MinerU服务 - 模拟 MinerUConversionResult 对象
         mock_mineru_instance = MagicMock()
-        mock_mineru_instance.convert_pdf_to_markdown.return_value = {
-            "status": "success",
-            "output_path": "/path/to/output.md",
-        }
+        mock_result = MagicMock()
+        mock_result.status = "success"
+        mock_result.output_path = "/path/to/output.md"
+        mock_result.mode = "auto"
+        mock_result.backend = "test_backend"
+        mock_result.version = "1.0.0"
+        # 支持字典式访问（tasks.py 中使用 mineru_result["output_path"]）
+        mock_result.__getitem__ = lambda self, key: getattr(self, key)
+        mock_mineru_instance.convert_pdf_to_markdown.return_value = mock_result
         mock_mineru.return_value = mock_mineru_instance
 
         # Mock Ontology服务
@@ -42,6 +59,7 @@ class ProcessPdfTaskTestCase(TestCase):
         mock_ontology_instance.extract_information.return_value = {
             "status": "success",
             "output_path": "/path/to/output.json",
+            "document": "/path/to/input.md",
         }
         mock_ontology.return_value = mock_ontology_instance
 
