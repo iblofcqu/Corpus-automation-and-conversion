@@ -11,6 +11,8 @@ from typing import Dict, Optional
 
 from django.conf import settings
 
+from Step5_ontology_agent_v2 import OntologyAgent
+
 logger = logging.getLogger(__name__)
 
 # 添加项目根目录到Python路径，以便导入Step5
@@ -62,12 +64,6 @@ class OntologyService:
 
             if not os.path.exists(ontology_path):
                 raise OntologyException(f"本体论文件不存在: {ontology_path}")
-
-            # 导入Step5 OntologyAgent
-            try:
-                from Step5_ontology_agent_v2 import OntologyAgent
-            except ImportError as e:
-                raise OntologyException(f"无法导入Step5模块: {str(e)}") from e
 
             # 创建Agent实例
             agent = OntologyAgent(
