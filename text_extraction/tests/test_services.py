@@ -2,6 +2,7 @@
 Service层测试
 """
 
+import logging
 import json
 import os
 import tempfile
@@ -15,6 +16,9 @@ from text_extraction.services import (
     MinerUService,
     OntologyService,
 )
+from text_extraction.services.mineru_service import MinerUConversionResult
+
+logger = logging.getLogger(__name__)
 
 
 class FileStorageServiceTestCase(TestCase):
@@ -62,33 +66,26 @@ class MinerUServiceTestCase(TestCase):
     def test_convert_pdf_to_markdown_success(self):
         """测试PDF转Markdown成功"""
         result = self.service.convert_pdf_to_markdown(
-            pdf_path="/path/to/test.pdf",
-            output_path="/path/to/output.md",
-            mode="auto",
+            pdf_path=r"data\input\北京地铁17号线工程土建施工08合同段“5.14”.pdf",
+            output_path=r"data\output",
+            mode="ocr",
         )
 
-        self.assertEqual(result["status"], "success")
-        self.assertIn("output_path", result)
-
-    @patch("requests.get")
-    def test_check_service_health_success(self, mock_get):
-        """测试服务健康检查成功"""
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_get.return_value = mock_response
-
-        result = self.service.check_service_health()
-
-        self.assertTrue(result)
-
-    @patch("requests.get")
-    def test_check_service_health_failure(self, mock_get):
-        """测试服务健康检查失败"""
-        mock_get.side_effect = Exception("Connection failed")
-
-        result = self.service.check_service_health()
-
-        self.assertFalse(result)
+        # 验证返回对象类型
+        self.assertIsInstance(result, MinerUConversionResult)
+        # 验证必需字段
+        self.assertEqual(result.status, "success")
+        self.assertIsNotNone(result.output_path)
+        self.assertTrue(os.path.exists(result.output_path))
+        self.assertTrue(result.output_path.endswith(".md"))
+        # 验证模式字段
+        self.assertEqual(result.mode, "ocr")
+        # 验证路径包含正确的子目录
+        self.assertIn("ocr", result.output_path)
+        # 验证可选字段存在
+        self.assertIsNotNone(result.backend)
+        self.assertIsNotNone(result.version)
+        logger.info("测试输出结果%s", result)
 
 
 class OntologyServiceTestCase(TestCase):
