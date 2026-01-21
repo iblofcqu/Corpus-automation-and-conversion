@@ -172,6 +172,7 @@ client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 #                       Memory Pool (记忆池)
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class MemoryPool:
     """
     记忆池：用于在 Agent 各模块间传递和存储数据
@@ -184,14 +185,14 @@ class MemoryPool:
 
     def __init__(self):
         self.memory = {
-            "document_path": None,           # 文档路径
-            "document_content": None,        # 完整文档内容
-            "headers": [],                   # 提取的标题层级
-            "ontology": None,                # 本体论结构
-            "split_plan": None,              # 拆分方案
-            "chunks": [],                    # 拆分后的文档块
-            "extracted_data": {},            # 提取的数据
-            "processing_log": [],            # 处理日志
+            "document_path": None,  # 文档路径
+            "document_content": None,  # 完整文档内容
+            "headers": [],  # 提取的标题层级
+            "ontology": None,  # 本体论结构
+            "split_plan": None,  # 拆分方案
+            "chunks": [],  # 拆分后的文档块
+            "extracted_data": {},  # 提取的数据
+            "processing_log": [],  # 处理日志
         }
 
     def set(self, key: str, value: Any):
@@ -221,7 +222,9 @@ class MemoryPool:
         if isinstance(obj, Path):
             return str(obj)
         elif isinstance(obj, dict):
-            return {key: self._convert_to_serializable(value) for key, value in obj.items()}
+            return {
+                key: self._convert_to_serializable(value) for key, value in obj.items()
+            }
         elif isinstance(obj, list):
             return [self._convert_to_serializable(item) for item in obj]
         elif isinstance(obj, (str, int, float, bool, type(None))):
@@ -242,15 +245,18 @@ class MemoryPool:
         if serializable_memory.get("document_content"):
             content = serializable_memory["document_content"]
             if isinstance(content, str) and len(content) > 1000:
-                serializable_memory["document_content"] = content[:1000] + "...(truncated)"
+                serializable_memory["document_content"] = (
+                    content[:1000] + "...(truncated)"
+                )
 
-        with open(output_path, 'w', encoding='utf-8') as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump(serializable_memory, f, ensure_ascii=False, indent=2)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 #                   1️⃣ HeaderExtractor (标题提取器)
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class HeaderExtractor:
     """
@@ -274,59 +280,67 @@ class HeaderExtractor:
         """
         memory_pool.log("HeaderExtractor: 开始提取标题层级")
 
-        lines = md_content.split('\n')
+        lines = md_content.split("\n")
         headers = []
         current_header = None
         first_header_line = None  # 记录第一个标题的行号
 
         # 先找到第一个标题的位置
         for i, line in enumerate(lines):
-            if line.strip().startswith('#'):
+            if line.strip().startswith("#"):
                 first_header_line = i
                 break
 
         # 如果第一个标题之前有内容，创建一个虚拟的"文档开头"标题
         if first_header_line is not None and first_header_line > 0:
-            preamble_content = '\n'.join(lines[0:first_header_line]).strip()
+            preamble_content = "\n".join(lines[0:first_header_line]).strip()
             if preamble_content:  # 只有非空内容才添加
-                headers.append({
-                    'index': 0,
-                    'level': 0,
-                    'title': '文档开头（基本信息）',
-                    'start_line': 0,
-                    'end_line': first_header_line - 1,
-                    'content': preamble_content
-                })
-                memory_pool.log("HeaderExtractor: 检测到文档开头有基本信息（不在标题层级下）")
+                headers.append(
+                    {
+                        "index": 0,
+                        "level": 0,
+                        "title": "文档开头（基本信息）",
+                        "start_line": 0,
+                        "end_line": first_header_line - 1,
+                        "content": preamble_content,
+                    }
+                )
+                memory_pool.log(
+                    "HeaderExtractor: 检测到文档开头有基本信息（不在标题层级下）"
+                )
 
         for i, line in enumerate(lines):
             line_stripped = line.strip()
 
             # 检查是否是标题行
-            if line_stripped.startswith('#'):
+            if line_stripped.startswith("#"):
                 # 保存上一个标题
                 if current_header:
-                    current_header['end_line'] = i - 1
-                    current_header['content'] = '\n'.join(lines[current_header['start_line']:i]).strip()
+                    current_header["end_line"] = i - 1
+                    current_header["content"] = "\n".join(
+                        lines[current_header["start_line"] : i]
+                    ).strip()
                     headers.append(current_header)
 
                 # 创建新标题
-                level = len(line_stripped) - len(line_stripped.lstrip('#'))
-                title = line_stripped.lstrip('#').strip()
+                level = len(line_stripped) - len(line_stripped.lstrip("#"))
+                title = line_stripped.lstrip("#").strip()
 
                 current_header = {
-                    'index': len(headers),
-                    'level': level,
-                    'title': title,
-                    'start_line': i,
-                    'end_line': None,
-                    'content': ''
+                    "index": len(headers),
+                    "level": level,
+                    "title": title,
+                    "start_line": i,
+                    "end_line": None,
+                    "content": "",
                 }
 
         # 保存最后一个标题
         if current_header:
-            current_header['end_line'] = len(lines) - 1
-            current_header['content'] = '\n'.join(lines[current_header['start_line']:]).strip()
+            current_header["end_line"] = len(lines) - 1
+            current_header["content"] = "\n".join(
+                lines[current_header["start_line"] :]
+            ).strip()
             headers.append(current_header)
 
         memory_pool.log(f"HeaderExtractor: 提取到 {len(headers)} 个标题")
@@ -338,6 +352,7 @@ class HeaderExtractor:
 # ═══════════════════════════════════════════════════════════════════════════
 #                   2️⃣ SplitPlanner (拆分规划器)
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class SplitPlanner:
     """
@@ -366,23 +381,27 @@ class SplitPlanner:
         # 构建本体论类别摘要
         ontology_summary = []
         for category_name, category_info in ontology["ontology_structure"].items():
-            ontology_summary.append({
-                "类别名称": category_name,
-                "优先级": category_info["priority"],
-                "描述": category_info["description"],
-                "关键词": category_info["keywords"],
-                "最大tokens": category_info.get("max_tokens", 5000)
-            })
+            ontology_summary.append(
+                {
+                    "类别名称": category_name,
+                    "优先级": category_info["priority"],
+                    "描述": category_info["description"],
+                    "关键词": category_info["keywords"],
+                    "最大tokens": category_info.get("max_tokens", 5000),
+                }
+            )
 
         # 构建标题摘要
         headers_summary = []
         for h in headers:
-            headers_summary.append({
-                "索引": h["index"],
-                "层级": h["level"],
-                "标题": h["title"],
-                "内容长度": len(h["content"])
-            })
+            headers_summary.append(
+                {
+                    "索引": h["index"],
+                    "层级": h["level"],
+                    "标题": h["title"],
+                    "内容长度": len(h["content"]),
+                }
+            )
 
         # 构建 LLM prompt
         prompt = f"""
@@ -424,11 +443,14 @@ class SplitPlanner:
             response = client.chat.completions.create(
                 model=MODEL,
                 messages=[
-                    {"role": "system", "content": "你是专业的事故报告分析专家。只返回JSON格式，不要添加任何解释文本。"},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": "你是专业的事故报告分析专家。只返回JSON格式，不要添加任何解释文本。",
+                    },
+                    {"role": "user", "content": prompt},
                 ],
                 temperature=0.1,
-                max_tokens=2000
+                max_tokens=2000,
             )
 
             content_str = response.choices[0].message.content
@@ -438,11 +460,13 @@ class SplitPlanner:
                 split_plan = json.loads(content_str)
             except json.JSONDecodeError:
                 # 尝试提取 JSON 部分
-                code_block_match = re.search(r'```(?:json)?\s*\n?(.*?)\n?```', content_str, re.DOTALL)
+                code_block_match = re.search(
+                    r"```(?:json)?\s*\n?(.*?)\n?```", content_str, re.DOTALL
+                )
                 if code_block_match:
                     split_plan = json.loads(code_block_match.group(1))
                 else:
-                    json_match = re.search(r'\{.*\}', content_str, re.DOTALL)
+                    json_match = re.search(r"\{.*\}", content_str, re.DOTALL)
                     if json_match:
                         split_plan = json.loads(json_match.group())
                     else:
@@ -461,6 +485,7 @@ class SplitPlanner:
 # ═══════════════════════════════════════════════════════════════════════════
 #                   3️⃣ DocumentSplitter (文档拆分器)
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class DocumentSplitter:
     """
@@ -500,22 +525,26 @@ class DocumentSplitter:
                 if 0 <= idx < len(headers):
                     header = headers[idx]
                     content_parts.append(header["content"])
-                    headers_included.append({
-                        "index": header["index"],
-                        "level": header["level"],
-                        "title": header["title"]
-                    })
+                    headers_included.append(
+                        {
+                            "index": header["index"],
+                            "level": header["level"],
+                            "title": header["title"],
+                        }
+                    )
 
             chunk = {
                 "chunk_id": chunk_id,
                 "ontology_category": ontology_category,
                 "content": "\n\n".join(content_parts),
                 "headers_included": headers_included,
-                "char_count": sum(len(part) for part in content_parts)
+                "char_count": sum(len(part) for part in content_parts),
             }
 
             chunks.append(chunk)
-            memory_pool.log(f"DocumentSplitter: 创建chunk '{chunk_id}' (类别: {ontology_category}, {chunk['char_count']} 字符)")
+            memory_pool.log(
+                f"DocumentSplitter: 创建chunk '{chunk_id}' (类别: {ontology_category}, {chunk['char_count']} 字符)"
+            )
 
         memory_pool.set("chunks", chunks)
         return chunks
@@ -524,6 +553,7 @@ class DocumentSplitter:
 # ═══════════════════════════════════════════════════════════════════════════
 #                   4️⃣ InformationExtractor (信息提取器)
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class InformationExtractor:
     """
@@ -546,7 +576,9 @@ class InformationExtractor:
     ACCIDENT_NATURE_OPTIONS = ["责任事故", "意外(非责任)事故"]
 
     @staticmethod
-    def _extract_responsible_persons(memory_pool: MemoryPool, ontology: Dict) -> List[Dict]:
+    def _extract_responsible_persons(
+        memory_pool: MemoryPool, ontology: Dict
+    ) -> List[Dict]:
         """
         提取责任人员信息，综合人员伤亡情况和责任认定两部分
 
@@ -585,7 +617,7 @@ class InformationExtractor:
             "持证上岗情况": {"type": "string", "extraction_strategy": "copy_exact"},
             "所属单位": {"type": "string", "extraction_strategy": "copy_exact"},
             "责任认定": {"type": "text", "extraction_strategy": "copy_section"},
-            "处罚意见": {"type": "text", "extraction_strategy": "copy_section"}
+            "处罚意见": {"type": "text", "extraction_strategy": "copy_section"},
         }
 
         schema_str = json.dumps(schema, ensure_ascii=False, indent=2)
@@ -612,11 +644,14 @@ class InformationExtractor:
             response = client.chat.completions.create(
                 model=MODEL,
                 messages=[
-                    {"role": "system", "content": "你是专业的信息提取助手。综合分析人员基本信息和责任认定两部分内容，提取责任人员的完整信息。严格复制原文，不要改写。"},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": "你是专业的信息提取助手。综合分析人员基本信息和责任认定两部分内容，提取责任人员的完整信息。严格复制原文，不要改写。",
+                    },
+                    {"role": "user", "content": prompt},
                 ],
                 temperature=0.0,
-                max_tokens=3000
+                max_tokens=3000,
             )
 
             result_str = response.choices[0].message.content.strip()
@@ -626,11 +661,13 @@ class InformationExtractor:
                 result = json.loads(result_str)
             except json.JSONDecodeError:
                 # 尝试提取 JSON 部分
-                code_block_match = re.search(r'```(?:json)?\s*\n?(.*?)\n?```', result_str, re.DOTALL)
+                code_block_match = re.search(
+                    r"```(?:json)?\s*\n?(.*?)\n?```", result_str, re.DOTALL
+                )
                 if code_block_match:
                     result = json.loads(code_block_match.group(1))
                 else:
-                    json_match = re.search(r'\[.*\]', result_str, re.DOTALL)
+                    json_match = re.search(r"\[.*\]", result_str, re.DOTALL)
                     if json_match:
                         result = json.loads(json_match.group())
                     else:
@@ -645,7 +682,9 @@ class InformationExtractor:
             return []
 
     @staticmethod
-    def _classify_with_options(content: str, field_name: str, options: List[str], memory_pool: MemoryPool) -> str:
+    def _classify_with_options(
+        content: str, field_name: str, options: List[str], memory_pool: MemoryPool
+    ) -> str:
         """
         从预定义选项中分类选择
 
@@ -660,7 +699,7 @@ class InformationExtractor:
         """
         prompt = f"""从以下文本中识别「{field_name}」，并从预定义选项中选择最匹配的一项。
 
-预定义选项：{', '.join(options)}
+预定义选项：{", ".join(options)}
 
 文本内容：
 {content[:8000]}
@@ -677,11 +716,14 @@ class InformationExtractor:
             response = client.chat.completions.create(
                 model=MODEL,
                 messages=[
-                    {"role": "system", "content": f"你是专业的信息提取助手。从给定的预定义选项中选择一个：{', '.join(options)}。只返回选项本身。"},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": f"你是专业的信息提取助手。从给定的预定义选项中选择一个：{', '.join(options)}。只返回选项本身。",
+                    },
+                    {"role": "user", "content": prompt},
                 ],
                 temperature=0.0,
-                max_tokens=50
+                max_tokens=50,
             )
 
             result = response.choices[0].message.content.strip()
@@ -693,7 +735,9 @@ class InformationExtractor:
                     return option
 
             # 如果没有匹配，返回第一个选项作为默认值
-            memory_pool.log(f"    警告: 分类结果 '{result}' 不在预定义选项中，使用默认值: {options[0]}")
+            memory_pool.log(
+                f"    警告: 分类结果 '{result}' 不在预定义选项中，使用默认值: {options[0]}"
+            )
             return options[0]
 
         except Exception as e:
@@ -701,7 +745,9 @@ class InformationExtractor:
             return options[0]  # 返回默认值
 
     @staticmethod
-    def _collect_cross_chunk_content(source_categories: List[str], memory_pool: MemoryPool) -> str:
+    def _collect_cross_chunk_content(
+        source_categories: List[str], memory_pool: MemoryPool
+    ) -> str:
         """
         收集多个类别的chunk内容
 
@@ -730,7 +776,9 @@ class InformationExtractor:
         max_length = 12000  # 增加长度以容纳多个chunk
 
         if len(merged_content) > max_length:
-            memory_pool.log(f"    提示: 内容过长({len(merged_content)}字符)，截取前{max_length}字符")
+            memory_pool.log(
+                f"    提示: 内容过长({len(merged_content)}字符)，截取前{max_length}字符"
+            )
             merged_content = merged_content[:max_length]
 
         return merged_content
@@ -761,15 +809,21 @@ class InformationExtractor:
 
             # 如果该类别已经处理过，跳过（避免重复提取）
             if ontology_category in processed_categories:
-                memory_pool.log(f"InformationExtractor: 跳过已处理的类别 '{ontology_category}'")
+                memory_pool.log(
+                    f"InformationExtractor: 跳过已处理的类别 '{ontology_category}'"
+                )
                 continue
 
-            memory_pool.log(f"InformationExtractor: 处理chunk '{chunk_id}' (类别: {ontology_category})")
+            memory_pool.log(
+                f"InformationExtractor: 处理chunk '{chunk_id}' (类别: {ontology_category})"
+            )
 
             # 获取本体论类别定义
             category_def = ontology["ontology_structure"].get(ontology_category)
             if not category_def:
-                memory_pool.log(f"InformationExtractor: 警告 - 未找到本体论类别 '{ontology_category}'")
+                memory_pool.log(
+                    f"InformationExtractor: 警告 - 未找到本体论类别 '{ontology_category}'"
+                )
                 continue
 
             # 提取该类别的所有字段
@@ -779,7 +833,9 @@ class InformationExtractor:
                 field_type = field_def["type"]
                 extraction_strategy = field_def["extraction_strategy"]
 
-                memory_pool.log(f"  提取字段: {field_name} (策略: {extraction_strategy})")
+                memory_pool.log(
+                    f"  提取字段: {field_name} (策略: {extraction_strategy})"
+                )
 
                 # 根据策略提取
                 extracted_value = InformationExtractor._extract_field(
@@ -787,7 +843,7 @@ class InformationExtractor:
                     field_def=field_def,
                     content=content,
                     ontology=ontology,
-                    memory_pool=memory_pool
+                    memory_pool=memory_pool,
                 )
 
                 category_data[field_name] = extracted_value
@@ -799,8 +855,13 @@ class InformationExtractor:
         return extracted_data
 
     @staticmethod
-    def _extract_field(field_name: str, field_def: Dict, content: str,
-                      ontology: Dict, memory_pool: MemoryPool) -> Any:
+    def _extract_field(
+        field_name: str,
+        field_def: Dict,
+        content: str,
+        ontology: Dict,
+        memory_pool: MemoryPool,
+    ) -> Any:
         """
         提取单个字段
 
@@ -834,7 +895,9 @@ class InformationExtractor:
                 options = field_def.get("options", [])
 
             if options:
-                result = InformationExtractor._classify_with_options(content, field_name, options, memory_pool)
+                result = InformationExtractor._classify_with_options(
+                    content, field_name, options, memory_pool
+                )
             else:
                 memory_pool.log(f"    警告: 分类字段 '{field_name}' 没有定义选项列表")
                 result = ""
@@ -842,14 +905,18 @@ class InformationExtractor:
 
         # 特殊处理：责任人员（需要综合人员伤亡情况和责任认定两部分）
         if field_name == "责任人员":
-            result = InformationExtractor._extract_responsible_persons(memory_pool, ontology)
+            result = InformationExtractor._extract_responsible_persons(
+                memory_pool, ontology
+            )
             return {"value": result, "reference": reference_content}
 
         # 检查是否需要跨chunk提取
         if "source_categories" in field_def:
             source_categories = field_def["source_categories"]
             memory_pool.log(f"    跨chunk提取，源类别: {', '.join(source_categories)}")
-            content = InformationExtractor._collect_cross_chunk_content(source_categories, memory_pool)
+            content = InformationExtractor._collect_cross_chunk_content(
+                source_categories, memory_pool
+            )
             reference_content = content
             if not content:
                 memory_pool.log(f"    警告: 未收集到任何内容")
@@ -868,9 +935,13 @@ class InformationExtractor:
         # 处理 schema（如果有）
         schema_str = ""
         if "subfields" in field_def:
-            schema_str = json.dumps(field_def["subfields"], ensure_ascii=False, indent=2)
+            schema_str = json.dumps(
+                field_def["subfields"], ensure_ascii=False, indent=2
+            )
         elif "item_schema" in field_def:
-            schema_str = json.dumps(field_def["item_schema"], ensure_ascii=False, indent=2)
+            schema_str = json.dumps(
+                field_def["item_schema"], ensure_ascii=False, indent=2
+            )
 
         # 添加字段说明（如果有）
         field_description = ""
@@ -880,7 +951,7 @@ class InformationExtractor:
         prompt = prompt_template.format(
             field_name=field_name,
             content=content[:15000],  # 增加内容长度限制以支持跨chunk
-            schema=schema_str
+            schema=schema_str,
         )
 
         # 将字段说明插入到 prompt 开头
@@ -891,11 +962,14 @@ class InformationExtractor:
             response = client.chat.completions.create(
                 model=MODEL,
                 messages=[
-                    {"role": "system", "content": "你是专业的信息提取助手。严格复制原文内容，不要改写或总结。只返回提取结果，不要添加解释。"},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": "你是专业的信息提取助手。严格复制原文内容，不要改写或总结。只返回提取结果，不要添加解释。",
+                    },
+                    {"role": "user", "content": prompt},
                 ],
                 temperature=0.0,  # 温度设为0，确保一致性
-                max_tokens=2000
+                max_tokens=2000,
             )
 
             result_str = response.choices[0].message.content.strip()
@@ -909,11 +983,13 @@ class InformationExtractor:
                     result = json.loads(result_str)
                 except json.JSONDecodeError:
                     # 尝试提取 JSON 部分
-                    code_block_match = re.search(r'```(?:json)?\s*\n?(.*?)\n?```', result_str, re.DOTALL)
+                    code_block_match = re.search(
+                        r"```(?:json)?\s*\n?(.*?)\n?```", result_str, re.DOTALL
+                    )
                     if code_block_match:
                         result = json.loads(code_block_match.group(1))
                     else:
-                        json_match = re.search(r'[\[\{].*[\]\}]', result_str, re.DOTALL)
+                        json_match = re.search(r"[\[\{].*[\]\}]", result_str, re.DOTALL)
                         if json_match:
                             result = json.loads(json_match.group())
                         else:
@@ -940,6 +1016,7 @@ class InformationExtractor:
 # ═══════════════════════════════════════════════════════════════════════════
 #                   5️⃣ OntologySerializer (序列化器)
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class OntologySerializer:
     """
@@ -971,15 +1048,14 @@ class OntologySerializer:
                 "本体论名称": ontology["ontology_metadata"]["name"],
                 "源文档": str(document_path),
                 "处理时间": datetime.now().isoformat(),
-                "处理器": "OntologyAgent v1.0"
+                "处理器": "OntologyAgent v1.0",
             }
         }
 
         # 按本体论的优先级顺序组织数据
         ontology_structure = ontology["ontology_structure"]
         sorted_categories = sorted(
-            ontology_structure.items(),
-            key=lambda x: x[1]["priority"]
+            ontology_structure.items(), key=lambda x: x[1]["priority"]
         )
 
         for category_name, category_def in sorted_categories:
@@ -990,7 +1066,7 @@ class OntologySerializer:
                 final_json[category_name] = {}
 
         # 保存为 JSON 文件
-        with open(output_path, 'w', encoding='utf-8') as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump(final_json, f, ensure_ascii=False, indent=2)
 
         memory_pool.log(f"OntologySerializer: 已保存到 {output_path}")
@@ -999,6 +1075,7 @@ class OntologySerializer:
 # ═══════════════════════════════════════════════════════════════════════════
 #                       OntologyAgent (主控制器)
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class OntologyAgent:
     """
@@ -1026,7 +1103,7 @@ class OntologyAgent:
     def _load_ontology(self) -> Dict:
         """加载本体论"""
         print(f"\n📖 加载本体论: {self.ontology_path}")
-        with open(self.ontology_path, 'r', encoding='utf-8') as f:
+        with open(self.ontology_path, "r", encoding="utf-8") as f:
             ontology = json.load(f)
         print(f"   版本: {ontology['ontology_metadata']['version']}")
         print(f"   名称: {ontology['ontology_metadata']['name']}")
@@ -1048,9 +1125,9 @@ class OntologyAgent:
         output_path = Path(output_dir)
         output_path.mkdir(exist_ok=True, parents=True)
 
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print(f"处理文档: {md_path.name}")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
 
         # 初始化记忆池
         memory_pool = MemoryPool()
@@ -1060,7 +1137,7 @@ class OntologyAgent:
         try:
             # 读取文档
             memory_pool.log("读取文档内容")
-            with open(md_path, 'r', encoding='utf-8', errors='ignore') as f:
+            with open(md_path, "r", encoding="utf-8", errors="ignore") as f:
                 md_content = f.read()
             memory_pool.set("document_content", md_content)
             print(f"   文档大小: {len(md_content):,} 字符")
@@ -1089,7 +1166,8 @@ class OntologyAgent:
 
             # 5️⃣ 序列化为 JSON
             print(f"\n5️⃣  序列化为 JSON")
-            json_output_path = output_path / f"{md_path.stem}_ontology.json"
+            json_path = f"{md_path.stem}_ontology.json"
+            json_output_path = output_path / json_path
             OntologySerializer.serialize(memory_pool, str(json_output_path))
             print(f"   ✓ 保存到: {json_output_path.name}")
 
@@ -1124,27 +1202,24 @@ class OntologyAgent:
             memory_pool.save_memory(str(memory_output_path))
             print(f"   ✓ 记忆池已保存: {memory_output_path.name}")
 
-            print(f"\n{'='*80}")
+            print(f"\n{'=' * 80}")
             print(f"✓ 处理完成")
-            print(f"{'='*80}")
+            print(f"{'=' * 80}")
 
             return {
                 "success": True,
                 "document": str(md_path),
-                "output": str(json_output_path)
+                "output": str(json_path),
             }
 
         except Exception as e:
             memory_pool.log(f"处理失败: {e}")
             print(f"\n✗ 处理失败: {e}")
             import traceback
+
             traceback.print_exc()
 
-            return {
-                "success": False,
-                "document": str(md_path),
-                "error": str(e)
-            }
+            return {"success": False, "document": str(md_path), "error": str(e)}
 
     def process_all_documents(self, dataset_dir: str, output_dir: str):
         """
@@ -1158,16 +1233,16 @@ class OntologyAgent:
         output_path = Path(output_dir)
         output_path.mkdir(exist_ok=True, parents=True)
 
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print(f"批量处理文档")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
         print(f"Dataset目录: {dataset_path}")
         print(f"输出目录: {output_path}")
 
         # 获取所有文档文件夹
         doc_folders = [f for f in dataset_path.iterdir() if f.is_dir()]
         print(f"找到 {len(doc_folders)} 个文档文件夹")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
 
         results = []
         success_count = 0
@@ -1177,7 +1252,9 @@ class OntologyAgent:
             print(f"\n[{i}/{len(doc_folders)}]")
 
             # 查找 md 文件
-            md_files = [f for f in doc_folder.glob("*.md") if f.name.lower() != "readme.md"]
+            md_files = [
+                f for f in doc_folder.glob("*.md") if f.name.lower() != "readme.md"
+            ]
 
             if not md_files:
                 print(f"  ✗ 未找到 markdown 文件")
@@ -1197,21 +1274,22 @@ class OntologyAgent:
 
         # 保存汇总结果
         summary_path = output_path / "_processing_summary.json"
-        with open(summary_path, 'w', encoding='utf-8') as f:
+        with open(summary_path, "w", encoding="utf-8") as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
 
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print(f"批量处理完成")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
         print(f"  成功: {success_count} 个")
         print(f"  失败: {fail_count} 个")
         print(f"  汇总文件: {summary_path.name}")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 #                               主程序
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 def main():
     """主程序入口"""
