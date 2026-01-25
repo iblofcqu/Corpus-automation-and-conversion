@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0-dev.0](https://github.com/iblofcqu/Corpus-automation-and-conversion/compare/v1.1.0...v1.2.0-dev.0) (2026-01-21)
+
+
+### Features
+
+* **docker:** 添加 Dockerfile 以支持项目容器化部署 ([00e5573](https://github.com/iblofcqu/Corpus-automation-and-conversion/commit/00e55737424922a8b01cc469ff6ff7b48c786c2a))
+
 ## [1.1.0](https://github.com/iblofcqu/Corpus-automation-and-conversion/compare/v1.0.0...v1.1.0) (2026-01-21)
 
 
