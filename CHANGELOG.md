@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/iblofcqu/Corpus-automation-and-conversion/compare/v1.2.0...v1.3.0) (2026-01-25)
+
+
+### Features
+
+* 强制OCR 模式 ([721242c](https://github.com/iblofcqu/Corpus-automation-and-conversion/commit/721242c4e589bac1c611f3d84d3a182f3ae4b1cf))
+
 ## [1.2.0](https://github.com/iblofcqu/Corpus-automation-and-conversion/compare/v1.2.0-dev.0...v1.2.0) (2026-01-25)
 
 
