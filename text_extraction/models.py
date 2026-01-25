@@ -11,6 +11,11 @@ class Project(models.Model):
     """项目模型"""
 
     name = models.CharField(max_length=255, verbose_name="项目名称")
+    description = models.CharField(
+        max_length=255,
+        verbose_name="项目描述",
+        default="",
+    )
     ontology_path = models.CharField(
         max_length=500,
         default=settings.DEFAULT_ONTOLOGY_PATH,
@@ -106,4 +111,3 @@ class File(models.Model):
 
     def __str__(self) -> str:
         return f"{self.filename} ({self.get_status_display()})"
-

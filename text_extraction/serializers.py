@@ -25,6 +25,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "description",
             "ontology_path",
             "is_deleted",
             "created_by",
@@ -53,7 +54,7 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ["id", "name", "ontology_file"]
+        fields = ["id", "name", "ontology_file", "description"]
         read_only_fields = ["id"]
 
     def create(self, validated_data):
