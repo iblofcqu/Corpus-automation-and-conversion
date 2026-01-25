@@ -255,6 +255,35 @@ class FileViewSet(viewsets.ReadOnlyModelViewSet):
     ],
 )
 class FileDeleteView(views.APIView):
+    authentication_classes = [HeaderAuthentication]
+
     def delete(self, request, file_id: int):
         File.objects.get(id=file_id).delete()
+        return Response(status=200)
+
+
+@extend_schema(
+    summary="结果修改",
+    tags=["文件管理"],
+    parameters=[
+        X_USER_ID_PARAM,
+        OpenApiParameter(
+            name="file_id",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            required=True,
+            description="文件ID",
+        ),
+    ],
+)
+class FileUpdateView(views.APIView):
+    authentication_classes = [HeaderAuthentication]
+
+    def patch(self, request, file_id: int):
+        file_obj = File.objects.get(id=file_id)
+        json_data = json.loads(request.body)
+        json_out_path = Path(file_obj.extraction_output_path)
+        full_path: Path = settings.MEDIA / json_out_path
+        with open(full_path.as_posix(), "w") as f:
+            f.write(json.dumps(json_data))
         return Response(status=200)
