@@ -10,7 +10,6 @@ from .views import (
     FileViewSet,
     ProjectViewSet,
     FileDeleteView,
-    FileUpdateView,
 )
 
 router = DefaultRouter()
@@ -22,11 +21,6 @@ urlpatterns = [
         "files/<int:file_id>/",
         FileDeleteView.as_view(),
         name="delete-file",
-    ),
-    path(
-        "files/<int:file_id>/",
-        FileUpdateView.as_view(),
-        name="put-result",
     ),
     path("upload/", FileUploadView.as_view(), name="file-upload"),
     path("", include(router.urls)),
