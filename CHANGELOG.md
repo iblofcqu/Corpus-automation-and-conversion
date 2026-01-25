@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/iblofcqu/Corpus-automation-and-conversion/compare/v1.2.0-dev.0...v1.2.0) (2026-01-25)
+
+
+### Features
+
+* 创建项目增加描述 ([45c575d](https://github.com/iblofcqu/Corpus-automation-and-conversion/commit/45c575d07c036758fe5d4ab23076f92ba2c700f5))
+* 文件删除API ([1546826](https://github.com/iblofcqu/Corpus-automation-and-conversion/commit/1546826898343514ea52942e2bea3fe497ab8240))
+* 文件上传接口增加文件大小记录 ([51099d5](https://github.com/iblofcqu/Corpus-automation-and-conversion/commit/51099d556624d496d75dcb9f6e1fdd36acf6049c))
+* 文件上传接口增加文件名传入 ([71606d4](https://github.com/iblofcqu/Corpus-automation-and-conversion/commit/71606d4fea9707d26aa9e401d800e055e08351b6))
+* 新增结果的修改API ([aff7813](https://github.com/iblofcqu/Corpus-automation-and-conversion/commit/aff781380496f092de4b835698ad1b056e465005))
+* 修改docker-compose 用于本地多服务开发调试 ([27d1527](https://github.com/iblofcqu/Corpus-automation-and-conversion/commit/27d1527dec66a7b09350c8f0ee35bdfcfc92d7be))
+* 修改setting 临时紧急调试异常规避 ([5bc66c0](https://github.com/iblofcqu/Corpus-automation-and-conversion/commit/5bc66c0e479dcf3f2607e92ddeeff42e00420e97))
+* 增加文件列表页中的文件大小 ([2d1d28a](https://github.com/iblofcqu/Corpus-automation-and-conversion/commit/2d1d28a7cafe562b41f9b171a73354cab87b40b6))
+* 增加media 路径pdf 预览 ([740498e](https://github.com/iblofcqu/Corpus-automation-and-conversion/commit/740498e8e69eab3fa244c8bab25018bc757b84b4))
+
+
+### Bug Fixes
+
+* 文本抽取结果更新 ([501afba](https://github.com/iblofcqu/Corpus-automation-and-conversion/commit/501afbad5442d1847e3a7b67f7db67d809091ea3))
+
 ## [1.2.0-dev.0](https://github.com/iblofcqu/Corpus-automation-and-conversion/compare/v1.1.0...v1.2.0-dev.0) (2026-01-21)
 
 
