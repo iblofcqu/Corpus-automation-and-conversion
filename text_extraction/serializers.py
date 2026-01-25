@@ -132,7 +132,7 @@ class FileUploadSerializer(serializers.Serializer):
 
     project_id = serializers.IntegerField()
     file = serializers.FileField()
-
+    name = serializers.CharField()
     def validate_project_id(self, value):
         """验证项目是否存在且未删除"""
         try:
