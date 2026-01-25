@@ -3,15 +3,15 @@ version: '3.8'
 services:
   # MinerU PDF 解析服务
   mineru:
-    image: mineru:latest
+    image: 47.103.11.68:30083/mineru:full
     container_name: corpus_mineru
     ports:
-      - "8000:8000"
+      - "8100:8000"
     volumes:
       # 映射本地数据目录
       - ./data/tmp/mineru:/media
       # 映射模型缓存目录（避免反复下载模型）
-      # - ./data/models/huggingface:/root/.cache/huggingface
+      # - ./data/models:/root/.cache/modelscope
       # - ./data/models/modelscope:/root/.cache/modelscope
       # - ./data/models/torch:/root/.cache/torch
     environment:
