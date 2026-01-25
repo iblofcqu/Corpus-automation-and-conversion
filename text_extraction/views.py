@@ -5,6 +5,7 @@ API视图
 import json
 import os
 import uuid
+from pathlib import Path
 
 from django.conf import settings
 from drf_spectacular.utils import (
@@ -167,7 +168,8 @@ class FileViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         """过滤查询集"""
         queryset = File.objects.select_related("project").filter(
-            project__created_by=self.request.user, project__is_deleted=False
+            # project__created_by=self.request.user,
+            project__is_deleted=False,
         )
 
         # 按项目ID过滤
@@ -211,7 +213,9 @@ class FileViewSet(viewsets.ReadOnlyModelViewSet):
             return Response(
                 {"error": "文件尚未处理完成"}, status=status.HTTP_400_BAD_REQUEST
             )
-
+        # pdf
+        # json
+        # id
         result = {}
 
         # 读取Markdown内容
@@ -222,7 +226,7 @@ class FileViewSet(viewsets.ReadOnlyModelViewSet):
             if os.path.exists(markdown_path):
                 with open(markdown_path, encoding="utf-8") as f:
                     result["markdown"] = f.read()
-
+        result["pdf_path"] = Path(file_obj.pdf_path).as_posix()
         # 读取本体论JSON
         if file_obj.extraction_output_path:
             ontology_path = os.path.join(
@@ -230,7 +234,7 @@ class FileViewSet(viewsets.ReadOnlyModelViewSet):
             )
             if os.path.exists(ontology_path):
                 with open(ontology_path, encoding="utf-8") as f:
-                    result["ontology"] = json.load(f)
+                    result["json_content"] = json.load(f)
 
         return Response(result)
 
