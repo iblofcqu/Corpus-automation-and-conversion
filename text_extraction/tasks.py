@@ -60,7 +60,7 @@ def process_pdf_task(self, file_id: int) -> dict:
         mineru_result = mineru_service.convert_pdf_to_markdown(
             pdf_path=pdf_full_path,
             output_path=mineru_full_path,
-            mode="auto",
+            mode="ocr",
         )
 
         # 更新MinerU输出路径
