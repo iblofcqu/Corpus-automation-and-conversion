@@ -103,7 +103,7 @@ class FileUploadView(APIView):
 
         project_id = serializer.validated_data["project_id"]
         uploaded_file = serializer.validated_data["file"]
-
+        name = serializer.validated_data["name"]
         # 获取项目
         try:
             project = Project.objects.get(id=project_id, is_deleted=False)
@@ -123,20 +123,20 @@ class FileUploadView(APIView):
 
         # 确保目录存在
         os.makedirs(os.path.dirname(pdf_full_path), exist_ok=True)
-
+        size = 0
         # 保存文件
         with open(pdf_full_path, "wb") as f:
             for chunk in uploaded_file.chunks():
+                size +=len(chunk)
                 f.write(chunk)
-
         # 创建File记录
         file_obj = File.objects.create(
             project=project,
-            filename=original_name,
+            filename=name,
             pdf_path=pdf_relative_path,
             status=File.Status.PENDING,
+            size=size,
         )
-
         # 触发Celery任务
         from .tasks import process_pdf_task
 

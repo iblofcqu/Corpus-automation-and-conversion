@@ -97,6 +97,10 @@ class File(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新时间")
+    size = models.IntegerField(
+        verbose_name="文件大小kb",
+        default=0,
+    )
 
     class Meta:
         db_table = "file"
