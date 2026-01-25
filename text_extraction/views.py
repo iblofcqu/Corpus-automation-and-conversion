@@ -17,6 +17,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import generics, mixins, views
 
 from .models import File, Project
 from .serializers import (
@@ -127,7 +128,7 @@ class FileUploadView(APIView):
         # 保存文件
         with open(pdf_full_path, "wb") as f:
             for chunk in uploaded_file.chunks():
-                size +=len(chunk)
+                size += len(chunk)
                 f.write(chunk)
         # 创建File记录
         file_obj = File.objects.create(
@@ -232,3 +233,24 @@ class FileViewSet(viewsets.ReadOnlyModelViewSet):
                     result["ontology"] = json.load(f)
 
         return Response(result)
+
+
+@extend_schema(
+    request=FileUploadSerializer,
+    summary="文件删除",
+    tags=["文件管理"],
+    parameters=[
+        X_USER_ID_PARAM,
+        OpenApiParameter(
+            name="file_id",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            required=True,
+            description="文件ID",
+        ),
+    ],
+)
+class FileDeleteView(views.APIView):
+    def delete(self, request, file_id: int):
+        File.objects.get(id=file_id).delete()
+        return Response(status=200)
